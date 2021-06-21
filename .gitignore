@@ -1,0 +1,15 @@
+# Blacklist everything
+*
+#But
+!*/
+# Whitelist all directories
+!/piezo_testplatform_1.0.srcs/**
+
+#Whitelist files
+!*.xdc
+!*.xci
+!*.v
+# Whitelist the file you're interested in. 
+!piezo_testplatform_1.0.xpr
+
+!.gitignore
