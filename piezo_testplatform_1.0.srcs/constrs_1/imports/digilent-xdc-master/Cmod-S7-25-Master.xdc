@@ -4,12 +4,12 @@
 ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
 
 ## 12 MHz System Clock
-set_property -dict { PACKAGE_PIN M9    IOSTANDARD LVCMOS33 } [get_ports { sysclk }]; #IO_L13P_T2_MRCC_14 Sch=gclk
-create_clock -add -name sys_clk_pin -period 83.33 -waveform {0 41.66} [get_ports { sysclk }];
+set_property -dict {PACKAGE_PIN M9 IOSTANDARD LVCMOS33} [get_ports sysclk]
+create_clock -period 83.330 -name sys_clk_pin -waveform {0.000 41.660} -add [get_ports sysclk]
 
 ## Push Buttons
-set_property -dict { PACKAGE_PIN D2    IOSTANDARD LVCMOS33 } [get_ports { btn0 }]; #IO_L6P_T0_34 Sch=btn[0]
-set_property -dict { PACKAGE_PIN D1    IOSTANDARD LVCMOS33 } [get_ports { btn1 }]; #IO_L6N_T0_VREF_34 Sch=btn[1]
+set_property -dict {PACKAGE_PIN D2 IOSTANDARD LVCMOS33} [get_ports btn0]
+set_property -dict {PACKAGE_PIN D1 IOSTANDARD LVCMOS33} [get_ports btn1]
 
 ## RGB LEDs
 #set_property -dict { PACKAGE_PIN F1    IOSTANDARD LVCMOS33 } [get_ports { led0_b }]; #IO_L10N_T1_34 Sch=led0_b
@@ -17,10 +17,10 @@ set_property -dict { PACKAGE_PIN D1    IOSTANDARD LVCMOS33 } [get_ports { btn1 }
 #set_property -dict { PACKAGE_PIN F2    IOSTANDARD LVCMOS33 } [get_ports { led0_r }]; #IO_L10P_T1_34 Sch=led0_r
 
 ## 4 LEDs
-set_property -dict { PACKAGE_PIN E2    IOSTANDARD LVCMOS33 } [get_ports { led0 }]; #IO_L8P_T1_34 Sch=led[1]
-set_property -dict { PACKAGE_PIN K1    IOSTANDARD LVCMOS33 } [get_ports { led1 }]; #IO_L16P_T2_34 Sch=led[2]
-set_property -dict { PACKAGE_PIN J1    IOSTANDARD LVCMOS33 } [get_ports { led2 }]; #IO_L16N_T2_34 Sch=led[3]
-set_property -dict { PACKAGE_PIN E1    IOSTANDARD LVCMOS33 } [get_ports { led3 }]; #IO_L8N_T1_34 Sch=led[4]
+set_property -dict {PACKAGE_PIN E2 IOSTANDARD LVCMOS33} [get_ports led0]
+set_property -dict {PACKAGE_PIN K1 IOSTANDARD LVCMOS33} [get_ports led1]
+set_property -dict {PACKAGE_PIN J1 IOSTANDARD LVCMOS33} [get_ports led2]
+set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [get_ports led3]
 
 ## Pmod Header JA
 #set_property -dict { PACKAGE_PIN J2    IOSTANDARD LVCMOS33 } [get_ports { ja[0] }]; #IO_L14P_T2_SRCC_34 Sch=ja[1]
@@ -44,10 +44,10 @@ set_property -dict { PACKAGE_PIN E1    IOSTANDARD LVCMOS33 } [get_ports { led3 }
 #set_property -dict { PACKAGE_PIN A12   IOSTANDARD LVCMOS33 } [get_ports { vaux12_n }]; #IO_L11N_T1_SRCC_AD12N_15 Sch=ain_n[33]
 
 ## Dedicated Digital I/O on the PIO Headers
-set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports { EXT_LED1 }]; #IO_L18N_T2_34 Sch=pio[01]
-set_property -dict { PACKAGE_PIN M4    IOSTANDARD LVCMOS33 } [get_ports { EXT_LED2 }]; #IO_L19P_T3_34 Sch=pio[02]
-set_property -dict { PACKAGE_PIN M3    IOSTANDARD LVCMOS33 } [get_ports { EXT_SW1 }]; #IO_L19N_T3_VREF_34 Sch=pio[03]
-set_property -dict { PACKAGE_PIN N2    IOSTANDARD LVCMOS33 } [get_ports { EXT_SW2 }]; #IO_L20P_T3_34 Sch=pio[04]
+set_property -dict {PACKAGE_PIN L1 IOSTANDARD LVCMOS33} [get_ports EXT_LED1]
+set_property -dict {PACKAGE_PIN M4 IOSTANDARD LVCMOS33} [get_ports EXT_LED2]
+set_property -dict {PACKAGE_PIN M3 IOSTANDARD LVCMOS33} [get_ports SW2]
+set_property -dict {PACKAGE_PIN N2 IOSTANDARD LVCMOS33} [get_ports SW1]
 #set_property -dict { PACKAGE_PIN M2    IOSTANDARD LVCMOS33 } [get_ports { pio5 }]; #IO_L20N_T3_34 Sch=pio[05]
 set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports { HDR2 }]; #IO_L21P_T3_DQS_34 Sch=pio[06]
 set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports { HDR3 }]; #IO_L21N_T3_DQS_34 Sch=pio[07]
@@ -61,21 +61,21 @@ set_property -dict { PACKAGE_PIN N13   IOSTANDARD LVCMOS33 } [get_ports { clk700
 #set_property -dict { PACKAGE_PIN M15   IOSTANDARD LVCMOS33 } [get_ports { MOSI }]; #IO_L9N_T1_DQS_D13_14 Sch=pio[21]
 #set_property -dict { PACKAGE_PIN M14   IOSTANDARD LVCMOS33 } [get_ports { SCLK }]; #IO_L9P_T1_DQS_14 Sch=pio[22]
 #set_property -dict { PACKAGE_PIN L15   IOSTANDARD LVCMOS33 } [get_ports { MISO }]; #IO_L4N_T0_D05_14 Sch=pio[23]
-set_property -dict { PACKAGE_PIN L14   IOSTANDARD LVCMOS33 } [get_ports { dac3 }]; #IO_L7N_T1_D10_14 Sch=pio[26]
-set_property -dict { PACKAGE_PIN K14   IOSTANDARD LVCMOS33 } [get_ports { dac2 }]; #IO_L4P_T0_D04_14 Sch=pio[27]
-set_property -dict { PACKAGE_PIN J15   IOSTANDARD LVCMOS33 } [get_ports { dac1 }]; #IO_L5P_T0_D06_14 Sch=pio[28]
-set_property -dict { PACKAGE_PIN L13   IOSTANDARD LVCMOS33 } [get_ports { dac0 }]; #IO_L7P_T1_D09_14 Sch=pio[29]
-set_property -dict { PACKAGE_PIN M13   IOSTANDARD LVCMOS33 } [get_ports { VGA_Enable }]; #IO_L8P_T1_D11_14 Sch=pio[30]
+set_property -dict {PACKAGE_PIN L14 IOSTANDARD LVCMOS33} [get_ports {DAC[3]}]
+set_property -dict {PACKAGE_PIN K14 IOSTANDARD LVCMOS33} [get_ports {DAC[2]}]
+set_property -dict {PACKAGE_PIN J15 IOSTANDARD LVCMOS33} [get_ports {DAC[1]}]
+set_property -dict {PACKAGE_PIN L13 IOSTANDARD LVCMOS33} [get_ports {DAC[0]}]
+set_property -dict {PACKAGE_PIN M13 IOSTANDARD LVCMOS33} [get_ports VGA_Enable]
 #set_property -dict { PACKAGE_PIN J11   IOSTANDARD LVCMOS33 } [get_ports { pio31 }]; #IO_0_14 Sch=pio[31]
-set_property -dict { PACKAGE_PIN C5    IOSTANDARD LVCMOS33 } [get_ports { PiezoDriverSignalB }]; #IO_L5P_T0_34 Sch=pio[40]
-set_property -dict { PACKAGE_PIN A2    IOSTANDARD LVCMOS33 } [get_ports { PiezoDriverSignalA }]; #IO_L2N_T0_34 Sch=pio[41]
-set_property -dict { PACKAGE_PIN B2    IOSTANDARD LVCMOS33 } [get_ports { PiezoDriverEnable }]; #IO_L2P_T0_34 Sch=pio[42]
+set_property -dict {PACKAGE_PIN C5 IOSTANDARD LVCMOS33} [get_ports PiezoDriverSignalB]
+set_property -dict {PACKAGE_PIN A2 IOSTANDARD LVCMOS33} [get_ports PiezoDriverSignalA]
+set_property -dict {PACKAGE_PIN B2 IOSTANDARD LVCMOS33} [get_ports PiezoDriverEnable]
 set_property -dict { PACKAGE_PIN B1    IOSTANDARD LVCMOS33 } [get_ports { ChipDriverEnable }]; #IO_L4N_T0_34 Sch=pio[43]
 set_property -dict { PACKAGE_PIN C1    IOSTANDARD LVCMOS33 } [get_ports { RST }]; #IO_L4P_T0_34 Sch=pio[44]
 set_property -dict { PACKAGE_PIN B3    IOSTANDARD LVCMOS33 } [get_ports { CLK_Digital }]; #IO_L3N_T0_DQS_34 Sch=pio[45]
 #set_property -dict { PACKAGE_PIN B4    IOSTANDARD LVCMOS33 } [get_ports { pio46 }]; #IO_L3P_T0_DQS_34 Sch=pio[46]
 #set_property -dict { PACKAGE_PIN A3    IOSTANDARD LVCMOS33 } [get_ports { pio47 }]; #IO_L1N_T0_34 Sch=pio[47]
-#set_property -dict { PACKAGE_PIN A4    IOSTANDARD LVCMOS33 } [get_ports { pio48 }]; #IO_L1P_T0_34 Sch=pio[48]
+set_property -dict { PACKAGE_PIN A4    IOSTANDARD LVCMOS33 } [get_ports { Testoclocko }]; #IO_L1P_T0_34 Sch=pio[48]
 
 ## Quad SPI Flash
 ## Note: QSPI clock can only be accessed through the STARTUPE2 primitive
@@ -88,3 +88,6 @@ set_property -dict { PACKAGE_PIN B3    IOSTANDARD LVCMOS33 } [get_ports { CLK_Di
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
 set_property CONFIG_MODE SPIx4 [current_design]
+
+set_property PULLUP true [get_ports SW1]
+set_property PULLUP true [get_ports SW2]

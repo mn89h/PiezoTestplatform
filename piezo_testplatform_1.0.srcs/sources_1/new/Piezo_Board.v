@@ -18,8 +18,8 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-parameter dly = 2;//turn-on delay from rising/falling edge to output. Time per step: 1/clk
-parameter debounce = 1048576;//Debounce length in sysclk cycles. Equals to 0.1s at 12MHz
+//parameter dly = 2;//turn-on delay from rising/falling edge to output. Time per step: 1/clk
+//parameter debounce = 1048576;//Debounce length in sysclk cycles. Equals to 0.1s at 12MHz
 
 module Piezo_Board(
     input sysclk, clk700k, EXT_SW1, EXT_SW2, btn0, btn1, HDR2, HDR3, HDR4, HDR5,
@@ -40,6 +40,8 @@ reg EXT_SW1prev = 1;
 reg EXT_SW2prev = 1;
 reg btn0Prev = 0;
 reg btn1Prev = 0;
+
+
 
 //set debugging clock output(clk700kout bzw. HDR7) to 12MHz/2^(3+1) = 750kHz. HDR5 Pin is used as debugging clk
 assign HDR6=1;
@@ -64,6 +66,7 @@ assign led3=DACValue[3];
 assign VGA_Enable=HDR2;
 assign ChipDriverEnable=HDR3;
 assign PiezoDriverEnable=HDR4;
+
 
 
 always@(posedge(sysclk)) begin
