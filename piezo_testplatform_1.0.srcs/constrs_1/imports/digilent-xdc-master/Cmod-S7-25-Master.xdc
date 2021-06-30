@@ -44,8 +44,8 @@ set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [get_ports led3]
 #set_property -dict { PACKAGE_PIN A12   IOSTANDARD LVCMOS33 } [get_ports { vaux12_n }]; #IO_L11N_T1_SRCC_AD12N_15 Sch=ain_n[33]
 
 ## Dedicated Digital I/O on the PIO Headers
-set_property -dict {PACKAGE_PIN L1 IOSTANDARD LVCMOS33} [get_ports EXT_LED1]
-set_property -dict {PACKAGE_PIN M4 IOSTANDARD LVCMOS33} [get_ports EXT_LED2]
+set_property -dict {PACKAGE_PIN L1 IOSTANDARD LVCMOS33} [get_ports EXT_LED2]
+set_property -dict {PACKAGE_PIN M4 IOSTANDARD LVCMOS33} [get_ports EXT_LED1]
 set_property -dict {PACKAGE_PIN M3 IOSTANDARD LVCMOS33} [get_ports SW2]
 set_property -dict {PACKAGE_PIN N2 IOSTANDARD LVCMOS33} [get_ports SW1]
 #set_property -dict { PACKAGE_PIN M2    IOSTANDARD LVCMOS33 } [get_ports { pio5 }]; #IO_L20N_T3_34 Sch=pio[05]
