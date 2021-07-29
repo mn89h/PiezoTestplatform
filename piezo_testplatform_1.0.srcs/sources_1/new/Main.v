@@ -90,8 +90,8 @@ module Main(
     */
     
     Repeat_Transmit Repeat_Transmit_Inst(
-        .Nr_Pulses(10),
-        .Delay_us(10000),
+        .Nr_Pulses(100),
+        .Delay_us(200000),
         .Enable(Rpt_Transmit_En),
         .CLK_10MHz(CLK_10MHz),
         .CLK_100MHz(CLK_100MHz),

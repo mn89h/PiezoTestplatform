@@ -29,7 +29,7 @@ module MosFet_Driver(
     );
     
     parameter dly = 5;//turn-on delay from rising/falling edge to output. Time per step: 1/clk
-    parameter Counter_Compare_Value = 66;
+    parameter Counter_Compare_Value = 50;
     
     reg Start_Merker = 0;
     reg out0 = 0;
