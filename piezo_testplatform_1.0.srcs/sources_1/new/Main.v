@@ -19,6 +19,13 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+//Uart params
+// Testbench uses a 10 MHz clock
+// Want to interface to 115200 baud UART
+// 10000000 / 115200 = 87 Clocks Per Bit.
+//parameter c_CLOCK_PERIOD_NS = 83; unused
+parameter c_CLKS_PER_BIT    = 1042;//9600baud, 10MHz
+parameter uart_buffer_length = 128;//Buffer length in bits. 128bit=16 byte
 
 module Main(
     input sysclk,
@@ -26,24 +33,55 @@ module Main(
     input btn1,
     input SW1,
     input SW2,
+    input wire uart_rx_pin,
+    output wire uart_tx_pin,
     output led0,
     output led1,
     output led2, 
     output led3,
+    output reg HDR2 = 0,
     output  EXT_LED1,
     output  EXT_LED2,
     output[3:0] DAC,
-    output PiezoDriverEnable,
     output PiezoDriverSignalA,
     output PiezoDriverSignalB,
-    output VGA_Enable
+    output wire PiezoDriverEnable,
+    output wire VGA_Enable
     );
     
+    reg Comm_Driver = 0;
+    reg Rpt_Transmit_En = 0;
+    
     wire rst_n, CLK_100MHz, CLK_10MHz, Int_Btn0, Int_Btn1, Ext_SW1, EXT_SW2;
+    wire[3:0] Data_w;
+	wire[11:0] Charge_Pulses_w;
+	wire[15:0] Start_L_us_w;
+	wire[11:0] Zero_L_w;
+	wire[11:0] One_L_w;
+	wire[15:0] Break_L_us_w;
+
+    assign PiezoDriverSignalA = Comm_Driver ? N_Comm : N_Driver;
+    assign PiezoDriverSignalB = Comm_Driver ? P_Comm : P_Driver;
+    assign EXT_LED1 = Rpt_Transmit_En;
     
-    assign PiezoDriverEnable = 1;
-    assign VGA_Enable = 1;
     
+    SerialComm #(.CLKS_PER_BIT(c_CLKS_PER_BIT), .BUFFER_LENGTH(uart_buffer_length)) SerialCommInst
+       (.sysclk(CLK_10MHz),
+        //Communication pins
+        .uart_rx_pin(uart_rx_pin),
+        .uart_tx_pin(uart_tx_pin),
+        //Periphery
+        .VGA_Enable(VGA_Enable),
+        .PiezoDriverEnable(PiezoDriverEnable),
+        //Wires that control internal settings
+        .Data(Data_w),
+        .Charge_Pulses(Charge_Pulses_w),
+        .Start_L_us(Start_L_us_w),
+        .Zero_L(Zero_L_w),
+        .One_L(One_L_w),
+        .Break_L_us(Break_L_us_w)
+        );
+
     Reset_Gen RST_Gen(
         .sysclk(sysclk),
         .RST(rst_n)
@@ -99,31 +137,24 @@ module Main(
         .PiezoDriverSignalB_P(P_Driver)
         );
     
-    Comm_Protocol Comm_Inst(
+    Comm_Protocol Comm_Inst(//Put these values into serial communication
         .CLK_100MHz(CLK_100MHz),
 		.CLK_10MHz(CLK_10MHz),
 		.Start(Ext_SW2),
-		.Data(4'b1010),
-		.Charge_Pulses(100),
-		.Start_L_us(500),
-		.Zero_L(100),
-		.One_L(200),
-		.Break_L_us(200),
+		.Data(Data_w),//DAT
+		.Charge_Pulses(Charge_Pulses_w),//CHP
+		.Start_L_us(Start_L_us_w),//STL
+		.Zero_L(Zero_L_w),//Z_L
+		.One_L(One_L_w),//O_L
+		.Break_L_us(Break_L_us_w),//B_L
 		.Finished(EXT_LED2),
 		.PiezoDriverSignalA_N(N_Comm),
 		.PiezoDriverSignalB_P(P_Comm)
-	
-
-);
+	    );
     
-    reg Comm_Driver = 0;
-    reg Rpt_Transmit_En = 0;
-    assign PiezoDriverSignalA = Comm_Driver ? N_Comm : N_Driver;
-    assign PiezoDriverSignalB = Comm_Driver ? P_Comm : P_Driver;
-    assign EXT_LED1 = Rpt_Transmit_En;
-    
+  
     always@(posedge CLK_10MHz) begin
-    
+
         
        // if(Ext_SW1) LED1 <= !LED1; 
         if(Ext_SW1 == 1) begin
@@ -133,8 +164,8 @@ module Main(
         else if (Ext_SW2 == 1) begin
             Comm_Driver <= 1;
             Rpt_Transmit_En <= 0;
-           end
-    
+        end
+
     end
     
 endmodule

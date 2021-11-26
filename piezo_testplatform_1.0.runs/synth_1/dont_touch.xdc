@@ -9,4 +9,4 @@ set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==Clock_Confi
 # IP: bd/Clock_Config/ip/Clock_Config_clk_wiz_0_0/Clock_Config_clk_wiz_0_0.xci
 set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==Clock_Config_clk_wiz_0_0 || ORIG_REF_NAME==Clock_Config_clk_wiz_0_0} -quiet] -quiet
 
-# XDC: c:/Users/dominick/Vivado/piezo_testplatform_1.0/piezo_testplatform_1.0.gen/sources_1/bd/Clock_Config/Clock_Config_ooc.xdc
+# XDC: c:/Users/Timo/piezo_testplatform_1.0/piezo_testplatform_1.0/piezo_testplatform_1.0.gen/sources_1/bd/Clock_Config/Clock_Config_ooc.xdc
