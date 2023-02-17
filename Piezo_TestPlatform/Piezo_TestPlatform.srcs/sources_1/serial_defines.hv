@@ -1,0 +1,129 @@
+// command structure: "DESTINATION:COMMAND VALUE\n"
+// e.g.               "VGA:GAIN 1\n"
+
+/*  Available Commands:
+/   VGA:GAIN
+/   LOL
+/
+*/
+//module serial_defines (
+//);
+    localparam DESTINATION_VGA          = 0;
+    localparam DESTINATION_COMP         = 1;
+    localparam DESTINATION_ADC          = 2;
+    localparam DESTINATION_COMM         = 3;
+    localparam DESTINATION_LED          = 4;
+    localparam DESTINATION_NONE         = 7;
+
+    localparam COMMAND_STATUS           = 0;
+    localparam COMMAND_POWER            = 1;
+    localparam COMMAND_MODE             = 2;
+    localparam COMMAND_VALUE            = 3;
+    localparam COMMAND_GAIN             = 4;
+    localparam COMMAND_SETCHP           = 5;
+    localparam COMMAND_SETSTL           = 6;
+    localparam COMMAND_SET0L            = 7;
+    localparam COMMAND_SET1L            = 8;
+    localparam COMMAND_SETBRL           = 9;
+    localparam COMMAND_SETDTA           = 10;
+    localparam COMMAND_START            = 11;
+    localparam COMMAND_RESET            = 12;
+    localparam COMMAND_NONE             = 15;
+
+    localparam STRING_DELIM_DST         = 8'h3A;            // ":"
+    localparam STRING_DELIM_CMD         = 8'h20;            // " "
+    localparam STRING_DELIM_FIN         = 8'h0A;            // "\n"
+
+    localparam STRING_DST_VGA           = 24'h564741;
+    localparam STRING_DST_COMP          = 32'h434F4D50;
+    localparam STRING_DST_ADC           = 24'h414443;
+    localparam STRING_DST_COMM          = 32'h434F4D4D;
+    localparam STRING_DST_LED           = 24'h4C4544;
+
+    localparam STRING_CMD_STATUS        = 48'h535441545553;
+    localparam STRING_CMD_POWER         = 40'h504F574552;
+    localparam STRING_CMD_MODE          = 32'h4D4F4445;
+    localparam STRING_CMD_VALUE         = 40'h56414C5545;
+    localparam STRING_CMD_GAIN          = 32'h4741494E;
+    localparam STRING_CMD_SETCHP        = 48'h534554434850; // "SETCHP"
+    localparam STRING_CMD_SETSTL        = 48'h53455453544C; // "SETSTL"
+    localparam STRING_CMD_SET0L         = 40'h534554304C;   // "SET0L"
+    localparam STRING_CMD_SET1L         = 40'h534554314C;   // "SET1L"
+    localparam STRING_CMD_SETBRL        = 48'h53455442524C; // "SETBRL"
+    localparam STRING_CMD_START         = 40'h5354415254;   // "START"
+    localparam STRING_CMD_RESET         = 40'h5245534554;   // "RESET"
+    localparam STRING_CMD_SETDTA        = 48'h534554445441; // "SETDTA"
+
+    
+    function [39:0] bin2ascii10000 (input [15:0] bin);
+
+        reg [19:0] bcd;
+        integer i;
+
+        begin
+            bcd=0;		 	
+            for (i=0;i<16;i=i+1) begin					            //Iterate once for each bit in input number
+                if (bcd[3:0] >= 5) bcd[3:0] = bcd[3:0] + 3;		    //If any BCD digit is >= 5, add three
+                if (bcd[7:4] >= 5) bcd[7:4] = bcd[7:4] + 3;
+                if (bcd[11:8] >= 5) bcd[11:8] = bcd[11:8] + 3;
+                if (bcd[15:12] >= 5) bcd[15:12] = bcd[15:12] + 3;
+                if (bcd[19:13] >= 5) bcd[19:13] = bcd[19:13] + 3;
+                bcd = {bcd[18:0],bin[15-i]};				        //Shift one bit, and shift in proper bit from input
+            end
+            // TODO? remove leading 0
+            bin2ascii10000 = {4'b0011, bcd[19:16], 4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+        end
+    endfunction
+    
+    function [31:0] bin2ascii1000 (input [13:0] bin);
+
+        reg [15:0] bcd;
+        integer i;
+
+        begin
+            bcd=0;		 	
+            for (i=0;i<14;i=i+1) begin					            //Iterate once for each bit in input number
+                if (bcd[3:0] >= 5) bcd[3:0] = bcd[3:0] + 3;		    //If any BCD digit is >= 5, add three
+                if (bcd[7:4] >= 5) bcd[7:4] = bcd[7:4] + 3;
+                if (bcd[11:8] >= 5) bcd[11:8] = bcd[11:8] + 3;
+                if (bcd[15:12] >= 5) bcd[15:12] = bcd[15:12] + 3;
+                bcd = {bcd[14:0],bin[13-i]};				        //Shift one bit, and shift in proper bit from input
+            end
+            bin2ascii1000 = {4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+        end
+    endfunction
+    
+    function [23:0] bin2ascii100 (input [9:0] bin);
+
+        reg [11:0] bcd;
+        integer i;
+
+        begin
+            bcd=0;		 	
+            for (i=0;i<10;i=i+1) begin					            //Iterate once for each bit in input number
+                if (bcd[3:0] >= 5) bcd[3:0] = bcd[3:0] + 3;		    //If any BCD digit is >= 5, add three
+                if (bcd[7:4] >= 5) bcd[7:4] = bcd[7:4] + 3;
+                if (bcd[11:8] >= 5) bcd[11:8] = bcd[11:8] + 3;
+                bcd = {bcd[10:0],bin[9-i]};				        //Shift one bit, and shift in proper bit from input
+            end
+            bin2ascii100 = {4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+        end
+    endfunction
+
+    function [15:0] bin2ascii10 (input [3:0] bin);
+
+        reg [7:0] bcd;
+        integer i;
+
+        begin
+            bcd = 0;		 	
+            for (i=0;i<4;i=i+1) begin					            //Iterate once for each bit in input number
+                if (bcd[3:0] >= 5) bcd[3:0] = bcd[3:0] + 3;		    //If any BCD digit is >= 5, add three
+                if (bcd[7:4] >= 5) bcd[7:4] = bcd[7:4] + 3;
+                bcd = {bcd[6:0],bin[3-i]};				        //Shift one bit, and shift in proper bit from input
+            end
+            bin2ascii10 = {4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+        end
+    endfunction
+    
+//endmodule
