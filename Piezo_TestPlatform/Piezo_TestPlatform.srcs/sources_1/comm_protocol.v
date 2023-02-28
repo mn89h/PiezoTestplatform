@@ -22,6 +22,7 @@
 `ifdef iverilog
 	`include "delay.v"
 	`include "piezo_driver.v"
+	`include "cdc_taskhandler.v"
 `endif
 
 module comm_protocol #(
@@ -41,7 +42,7 @@ module comm_protocol #(
 	// serial input
 	input wire [2:0] rx_dst,
 	input wire [3:0] rx_cmd,
-	input wire [4:0] rx_val,
+	input wire [15:0] rx_val,
 	input wire rx_fin,
 
 	// serial output
@@ -71,6 +72,7 @@ module comm_protocol #(
 	reg [11:0] piezo_numpulses = 0;
 	reg [23:0] delay_us        = 0;
 
+	//wire piezo_start_100, piezo_fin_100;
 	wire piezo_fin, delay_fin;
 
 	piezo_driver m_piezo_driver (
@@ -88,6 +90,15 @@ module comm_protocol #(
 		.start(delay_start),
 		.fin(delay_fin)
 	);
+
+	// cdc_taskhandler m_cdc_task_handler (
+	// 	.clk_a(clk),
+	// 	.clk_b(clk_100),
+	// 	.start_a(piezo_start),
+	// 	.start_b(piezo_start_100),
+	// 	.done_b(piezo_fin_100),
+	// 	.done_a(piezo_fin)
+	// );
 
 	localparam TX_IDLE = 3'b001;
 	localparam TX_OFFR = 3'b010;
@@ -117,14 +128,12 @@ module comm_protocol #(
 	reg [15:0] ascii_val_dta	= DEFAULT_DATA_ASCII;
 	reg [31:0] ascii_val_chp    = DEFAULT_CHP_ASCII;
 	reg [39:0] ascii_val_stl    = DEFAULT_STL_ASCII;
-	reg [31:0] ascii_val_0l     = DEFAULT_0L_ASCII;
+	reg [31:0] ascii_val_0l		= DEFAULT_0L_ASCII;
 	reg [31:0] ascii_val_1l     = DEFAULT_1L_ASCII;
 	reg [39:0] ascii_val_brl    = DEFAULT_BRL_ASCII;
-
-	// update ascii registers by converting and assigning incoming values
-	wire [39:0] converted_bin = bin2ascii10000(rx_val);
 	
 	always@(posedge clk) begin
+
 		// rx handler
 		if (btn_start == 1) begin 
 			comm_start <= 1;
@@ -137,52 +146,53 @@ module comm_protocol #(
 				COMMAND_STATUS: begin
 					if (state_tx == TX_IDLE) begin
 						write_buffer <= {ascii_txt_dta  , ascii_val_dta , ascii_lf, 
-										 ascii_txt_chp  , ascii_val_chp , ascii_lf, 
-										 ascii_txt_stl  , ascii_val_stl , ascii_lf, 
-										 ascii_txt_0l   , ascii_val_0l  , ascii_lf, 
-										 ascii_txt_1l   , ascii_val_1l  , ascii_lf, 
-										 ascii_txt_brl  , ascii_val_brl , ascii_lf, 
-										 {SZ_BUF-464{1'b0}}};
-						tx_start <= 1;
+										ascii_txt_chp  , ascii_val_chp , ascii_lf, 
+										ascii_txt_stl  , ascii_val_stl , ascii_lf, 
+										ascii_txt_0l   , ascii_val_0l  , ascii_lf, 
+										ascii_txt_1l   , ascii_val_1l  , ascii_lf, 
+										ascii_txt_brl  , ascii_val_brl , ascii_lf, 
+										{SZ_BUF-464{1'b0}}};
 						tx_count <= 58;
+						tx_start <= 1;
 					end
 				end
 				COMMAND_SETDTA: begin
 					Data			<= rx_val;
-					ascii_val_dta 	<= converted_bin;
+					ascii_val_dta 	<= bin2ascii10000(rx_val);
 				end
 				COMMAND_SETCHP: begin
 					Charge_Pulses 	<= rx_val;
-					ascii_val_chp 	<= converted_bin;
+					ascii_val_chp 	<= bin2ascii10000(rx_val);
 				end
 				COMMAND_SETSTL: begin
 					Start_L_us 		<= rx_val;
-					ascii_val_stl 	<= converted_bin;
+					ascii_val_stl 	<= bin2ascii10000(rx_val);
 				end
 				COMMAND_SET0L: begin
 					Zero_L 			<= rx_val;
-					ascii_val_0l  	<= converted_bin;
+					ascii_val_0l  	<= bin2ascii10000(rx_val);
 				end
 				COMMAND_SET1L: begin
 					One_L 			<= rx_val;
-					ascii_val_1l  	<= converted_bin;
+					ascii_val_1l  	<= bin2ascii10000(rx_val);
 				end
 				COMMAND_SETBRL: begin
 					Break_L_us 		<= rx_val;
-					ascii_val_brl  	<= converted_bin;
+					ascii_val_brl  	<= bin2ascii10000(rx_val);
 				end
 				COMMAND_RESET: begin
-					Data         	= DEFAULT_DATA;
-					Charge_Pulses	= DEFAULT_CHP;
-					Start_L_us   	= DEFAULT_STL;
-					Zero_L       	= DEFAULT_0L;
-					One_L        	= DEFAULT_1L;
-					Break_L_us   	= DEFAULT_BRL;
-					ascii_val_chp	= STRING_VAL_DFLT;
-					ascii_val_stl	= STRING_VAL_DFLT;
-					ascii_val_0l 	= STRING_VAL_DFLT;
-					ascii_val_1l 	= STRING_VAL_DFLT;
-					ascii_val_brl	= STRING_VAL_DFLT;
+					Data         	<= DEFAULT_DATA;
+					Charge_Pulses	<= DEFAULT_CHP;
+					Start_L_us   	<= DEFAULT_STL;
+					Zero_L       	<= DEFAULT_0L;
+					One_L        	<= DEFAULT_1L;
+					Break_L_us   	<= DEFAULT_BRL;
+					ascii_val_dta	<= DEFAULT_DATA_ASCII;
+					ascii_val_chp	<= DEFAULT_CHP_ASCII;
+					ascii_val_stl	<= DEFAULT_STL_ASCII;
+					ascii_val_0l 	<= DEFAULT_0L_ASCII;
+					ascii_val_1l 	<= DEFAULT_1L_ASCII;
+					ascii_val_brl	<= DEFAULT_BRL_ASCII;
 				end
 			endcase
 		end
@@ -193,7 +203,9 @@ module comm_protocol #(
 
 		// tx handler
 		case (state_tx)
-			TX_IDLE: if (tx_start) state_tx <= TX_OFFR;
+			TX_IDLE: if (tx_start) begin
+				state_tx <= TX_OFFR;
+			end
 			TX_OFFR: begin
 				//if (write_buffer[SZ_BUF-1:SZ_BUF-8] != 8'b0) begin  // if write_buffer not empty,
 				if (tx_count != 0) begin  							// if write_buffer not empty,
@@ -216,21 +228,6 @@ module comm_protocol #(
 			end
 		endcase
 	end
-
-	
-	//-------------------------------------TX HANDLING-------------------------------------
-
-	// determine shift amount for write_buffer in order to remove leading NULs (8'b0) if any (occur if ascii regs aren't stuffed with ascii characters, e.g. space (8'h20) or 0 (8'h30))
-	// TODO (preference): don't stop when NUL occurs in write_buffer, instead transmit and use byte counter (set in rx) for determining end of transmission
-	wire next1Empty = (write_buffer[SZ_BUF-9:SZ_BUF-16]  == 8'b0);
-	wire next2Empty = (write_buffer[SZ_BUF-17:SZ_BUF-24] == 8'b0);
-	wire next3Empty = (write_buffer[SZ_BUF-25:SZ_BUF-32] == 8'b0);
-	wire next4Empty = (write_buffer[SZ_BUF-33:SZ_BUF-40] == 8'b0);
-	wire [5:0] tx_shift_amount = (next1Empty && next2Empty && next3Empty && next4Empty) ? 40 :
-								 (next1Empty && next2Empty && next3Empty) ? 32 :
-						   		 (next1Empty && next2Empty) ? 24 :
-						   		 (next1Empty) ? 16 :
-						   		 8;
 
 	//-------------------------------------PIEZO COMM-------------------------------------
 

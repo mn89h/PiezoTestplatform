@@ -118,9 +118,9 @@ assign led2_pin = tx_busy;
 assign led3_pin = 0;
 assign led4_pin = 0;
 assign extled1_pin = comm_fin;
-assign extled2_pin = 0;
+assign extled2_pin = extsw1_down;
 
-assign vga_en_pin = 0;
+assign vga_en_pin = 1;
 assign comp_en_pin = 0;
 assign adc_clk_pin = 0;
 assign adc_en_pin = 1;
@@ -154,6 +154,8 @@ clk_wiz u_clk_wiz (
 
 serial_interface  u_serial_interface (
     .clk                     ( sysclk            ),
+    
+    //rx
     .uart_rx_stream          ( uart_rx_pin       ),
     
     .rx_dst                  ( rx_dst            ),
@@ -162,6 +164,7 @@ serial_interface  u_serial_interface (
     .rx_fin                  ( rx_fin            ),
     .rx_busy                 ( rx_busy           ),
     
+    //tx
     .uart_tx_stream          ( uart_tx_pin       ),
     .tx_busy                 ( tx_busy           ),
     
@@ -220,8 +223,8 @@ comm_protocol #(
 vga_driver  u_vga_driver (
     .clk                     ( sysclk         ),
 
-    .btn_gain_inc            ( extsw4_down    ),
-    .btn_gain_dec            ( extsw3_down    ),
+    .gain_inc_signal         ( extsw4_down    ),
+    .gain_dec_signal         ( extsw3_down    ),
 
     .rx_dst                  ( rx_dst         ),
     .rx_cmd                  ( rx_cmd         ),

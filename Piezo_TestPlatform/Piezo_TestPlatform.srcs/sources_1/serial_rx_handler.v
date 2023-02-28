@@ -136,10 +136,18 @@ module serial_rx_handler(
                          (cmd_buf == STRING_CMD_MODE    ) ? COMMAND_MODE    :
                          (cmd_buf == STRING_CMD_VALUE   ) ? COMMAND_VALUE   :
                          (cmd_buf == STRING_CMD_GAIN    ) ? COMMAND_GAIN    :
+                         (cmd_buf == STRING_CMD_SETDTA  ) ? COMMAND_SETDTA  :
+                         (cmd_buf == STRING_CMD_SETCHP  ) ? COMMAND_SETCHP  :
+                         (cmd_buf == STRING_CMD_SETSTL  ) ? COMMAND_SETSTL  :
+                         (cmd_buf == STRING_CMD_SET0L   ) ? COMMAND_SET0L   :
+                         (cmd_buf == STRING_CMD_SET1L   ) ? COMMAND_SET1L   :
+                         (cmd_buf == STRING_CMD_SETBRL  ) ? COMMAND_SETBRL  :
+                         (cmd_buf == STRING_CMD_START   ) ? COMMAND_START   :
+                         (cmd_buf == STRING_CMD_RESET   ) ? COMMAND_RESET   :
                                                             COMMAND_NONE    ;
 
     wire [12:0] rx_val_wire;
-    assign rx_val_wire = val_buf[35:32] * 16'd10000+ val_buf[27:24] * 16'd1000 + val_buf[19:16] * 16'd100 + val_buf[11:8] * 16'd10 + val_buf_next[3:0];
+    assign rx_val_wire = val_buf[35:32] * 16'd10000 + val_buf[27:24] * 16'd1000 + val_buf[19:16] * 16'd100 + val_buf[11:8] * 16'd10 + val_buf_next[3:0];
 
     wire rx_fin_wire;
     assign rx_fin_wire = (state == STATE_VAL && nextstate == STATE_CLR);

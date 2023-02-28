@@ -20,10 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module vga_driver(
+module vga_driver (
     input wire clk,
-    input wire btn_gain_inc,
-    input wire btn_gain_dec,
+    input wire power_signal,
+    input wire gain_inc_signal,
+    input wire gain_dec_signal,
 
     input wire [2:0] rx_dst,
     input wire [3:0] rx_cmd,
@@ -35,11 +36,13 @@ module vga_driver(
     output reg [7:0] tx_data,
 
     output reg [3:0] dac_value = 4,
+    output reg vga_enable = 0,
+    
     output wire led0,
     output wire led1,
     output wire led2,
     output wire led3
-    );
+);
 
     `include "serial_defines.hv"
 
@@ -60,12 +63,15 @@ module vga_driver(
     
     
     always@(posedge clk) begin
-    
+
         // rx handler
-        if (btn_gain_inc == 1) begin 
+        if (power_signal == 1) begin
+            vga_enable <= ~vga_enable;
+        end
+        else if (gain_inc_signal == 1) begin 
             dac_value <= dac_value + 1;
         end
-        else if (btn_gain_dec == 1) begin
+        else if (gain_dec_signal == 1) begin
             dac_value <= dac_value - 1;
         end
         else if (rx_fin && rx_dst == DESTINATION_VGA) begin
