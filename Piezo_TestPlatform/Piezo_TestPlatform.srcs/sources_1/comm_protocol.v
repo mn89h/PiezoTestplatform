@@ -131,8 +131,14 @@ module comm_protocol #(
 	reg [31:0] ascii_val_0l		= DEFAULT_0L_ASCII;
 	reg [31:0] ascii_val_1l     = DEFAULT_1L_ASCII;
 	reg [39:0] ascii_val_brl    = DEFAULT_BRL_ASCII;
+
+	// local variables for input value handling, only read after write to avoid latches!
+	reg [15:0] recv_value;
+	reg [39:0] recv_value_ascii;
 	
 	always@(posedge clk) begin
+		comm_start <= 0;
+		tx_start <= 0;
 
 		// rx handler
 		if (btn_start == 1) begin 
@@ -140,11 +146,17 @@ module comm_protocol #(
 			tx_start <= 0;
 		end
 		else if (rx_fin && rx_dst == DESTINATION_COMM) begin
-			if (rx_cmd == COMMAND_START) 	comm_start <= 1;
-			else							comm_start <= 0;
 			case (rx_cmd)
+				COMMAND_START: begin
+					comm_start <= 1;
+					
+					write_buffer	<= {88'h434F4D4D20535441525421, ascii_lf, // COMM START!
+										{SZ_BUF-96{1'b0}}};
+					tx_count 		<= 12;
+					tx_start 		<= 1;
+				end
 				COMMAND_STATUS: begin
-					if (state_tx == TX_IDLE) begin
+					if (state_tx == TX_IDLE) begin //TX_IDLE check, may be unneccessary
 						write_buffer <= {ascii_txt_dta  , ascii_val_dta , ascii_lf, 
 										ascii_txt_chp  , ascii_val_chp , ascii_lf, 
 										ascii_txt_stl  , ascii_val_stl , ascii_lf, 
@@ -157,28 +169,80 @@ module comm_protocol #(
 					end
 				end
 				COMMAND_SETDTA: begin
-					Data			<= rx_val;
-					ascii_val_dta 	<= bin2ascii10000(rx_val);
+					// Example for input value handling using local variables; used for:
+					// boundary checking and reusability (single definition of used bit_range and single bin2ascii() call)
+					recv_value		 = rx_val[3:0];
+					if (rx_val > 4'b1111)
+						recv_value   = 4'b1111;
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					Data			<= recv_value;
+					ascii_val_dta 	<= recv_value_ascii;
+
+					write_buffer	<= {ascii_txt_dta, recv_value_ascii, ascii_lf,
+										{SZ_BUF-88{1'b0}}};
+					tx_count 		<= 11;
+					tx_start 		<= 1;
 				end
 				COMMAND_SETCHP: begin
-					Charge_Pulses 	<= rx_val;
-					ascii_val_chp 	<= bin2ascii10000(rx_val);
+					recv_value		 = rx_val[11:0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					Charge_Pulses 	<= recv_value;
+					ascii_val_chp 	<= recv_value_ascii;
+					
+					write_buffer	<= {ascii_txt_chp, recv_value_ascii, ascii_lf,
+										{SZ_BUF-88{1'b0}}};
+					tx_count 		<= 11;
+					tx_start 		<= 1;
 				end
 				COMMAND_SETSTL: begin
-					Start_L_us 		<= rx_val;
-					ascii_val_stl 	<= bin2ascii10000(rx_val);
+					recv_value		 = rx_val[15:0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					Start_L_us 		<= recv_value;
+					ascii_val_stl 	<= recv_value_ascii;
+
+					write_buffer	<= {ascii_txt_stl, recv_value_ascii, ascii_lf,
+										{SZ_BUF-88{1'b0}}};
+					tx_count 		<= 11;
+					tx_start 		<= 1;
 				end
 				COMMAND_SET0L: begin
-					Zero_L 			<= rx_val;
-					ascii_val_0l  	<= bin2ascii10000(rx_val);
+					recv_value		 = rx_val[11:0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					Zero_L 			<= recv_value;
+					ascii_val_0l  	<= recv_value_ascii;
+
+					write_buffer	<= {ascii_txt_0l, recv_value_ascii, ascii_lf,
+										{SZ_BUF-80{1'b0}}};
+					tx_count 		<= 10;
+					tx_start 		<= 1;
 				end
 				COMMAND_SET1L: begin
-					One_L 			<= rx_val;
-					ascii_val_1l  	<= bin2ascii10000(rx_val);
+					recv_value		 = rx_val[11:0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					One_L 			<= recv_value;
+					ascii_val_1l  	<= recv_value_ascii;
+
+					write_buffer	<= {ascii_txt_1l, recv_value_ascii, ascii_lf,
+										{SZ_BUF-80{1'b0}}};
+					tx_count 		<= 10;
+					tx_start 		<= 1;
 				end
 				COMMAND_SETBRL: begin
-					Break_L_us 		<= rx_val;
-					ascii_val_brl  	<= bin2ascii10000(rx_val);
+					recv_value		 = rx_val[15:0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					Break_L_us 		<= recv_value;
+					ascii_val_brl  	<= recv_value_ascii;
+
+					write_buffer	<= {ascii_txt_brl, recv_value_ascii, ascii_lf,
+										{SZ_BUF-88{1'b0}}};
+					tx_count 		<= 11;
+					tx_start 		<= 1;
 				end
 				COMMAND_RESET: begin
 					Data         	<= DEFAULT_DATA;
@@ -193,14 +257,14 @@ module comm_protocol #(
 					ascii_val_0l 	<= DEFAULT_0L_ASCII;
 					ascii_val_1l 	<= DEFAULT_1L_ASCII;
 					ascii_val_brl	<= DEFAULT_BRL_ASCII;
+
+					write_buffer	<= {112'h434F4D4D205245534554204F4B21, ascii_lf, // COMM RESET OK!
+										{SZ_BUF-120{1'b0}}};
+					tx_count 		<= 15;
+					tx_start 		<= 1;
 				end
 			endcase
 		end
-		else begin
-			comm_start <= 0;
-			tx_start <= 0;
-		end
-
 		// tx handler
 		case (state_tx)
 			TX_IDLE: if (tx_start) begin
