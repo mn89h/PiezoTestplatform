@@ -120,7 +120,7 @@ module uart_tx
               begin
                 r_Tx_Done     <= 1'b1;
                 r_Clock_Count <= 0;
-                r_SM_Main     <= s_CLEANUP;
+                r_SM_Main     <= s_IDLE; // changed from s_CLEANUP to s_IDLE
                 r_Tx_Active   <= 1'b0;
               end
           end // case: s_Tx_STOP_BIT
