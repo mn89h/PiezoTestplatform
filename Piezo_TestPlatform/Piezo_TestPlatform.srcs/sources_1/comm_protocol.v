@@ -25,6 +25,8 @@
 	`include "cdc_taskhandler.v"
 `endif
 
+`define COMM_TEST //comment out for normal button behaviour
+
 module comm_protocol #(
 	parameter DEFAULT_DATA = 4'b0101, parameter DEFAULT_DATA_ASCII = 16'h35, 
 	parameter DEFAULT_CHP  = 12'd100, parameter DEFAULT_CHP_ASCII  = 32'h313030,
@@ -65,8 +67,10 @@ module comm_protocol #(
 	reg [15:0] Break_L_us   	= DEFAULT_BRL;
 	
 	reg [4:0] state_comm = 0;
+	reg [1:0] state_test = 0;
 
 	reg comm_start             = 0;
+	reg test_start             = 0;
 	reg piezo_start            = 0;
 	reg delay_start            = 0;
 	reg [11:0] piezo_numpulses = 0;
@@ -142,7 +146,11 @@ module comm_protocol #(
 
 		// rx handler
 		if (btn_start == 1) begin 
-			comm_start <= 1;
+			`ifdef COMM_TEST
+				test_start <= ~test_start;
+			`else
+				comm_start <= 1;
+			`endif
 			tx_start <= 0;
 		end
 		else if (rx_fin && rx_dst == DESTINATION_COMM) begin
@@ -300,7 +308,7 @@ module comm_protocol #(
 
 		case (state_comm)
 
-			0: 	if (comm_start == 1) begin
+			0: 	if (comm_start == 1 && state_test == 0) begin
 					state_comm 	<= 1;
 					comm_fin 	<= 0;
 				end 
@@ -413,6 +421,27 @@ module comm_protocol #(
 						comm_fin 	<= 1;
 					end
 				end
+		endcase
+
+		case (state_test)
+			0: begin
+				if (test_start == 1 && state_comm == 0 && comm_start == 0)
+					state_test <= 1;
+			end
+			1: begin
+				if (piezo_fin == 1 && test_start == 1) begin
+					piezo_numpulses <= Charge_Pulses;
+					piezo_start <= 1;
+					state_test <= 2;
+				end
+				if (piezo_fin == 1 && test_start == 0) begin
+					state_test <= 0;
+				end
+			end
+			2: begin
+				piezo_start <= 0;
+				state_test <= 1;
+			end
 		endcase
 	end
 

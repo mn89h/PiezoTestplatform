@@ -30,7 +30,7 @@ module piezo_driver(
     );
     
     parameter DLY = 5;                      // turn-on delay from rising/falling edge to output. Time per step: 1/clk
-    parameter COUNTER_COMPARE_VALUE = 50;   // results in T = 50 * 10ns or f = 2MHz 
+    parameter COUNTER_COMPARE_VALUE = 50;   // results in T = 50 * 10ns or f = 1MHz 
     
     reg busy = 0;
     reg out0 = 0;
