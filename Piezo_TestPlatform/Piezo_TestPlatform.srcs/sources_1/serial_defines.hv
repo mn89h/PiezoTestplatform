@@ -17,17 +17,21 @@
 
     localparam COMMAND_STATUS           = 0;
     localparam COMMAND_POWER            = 1;
-    localparam COMMAND_MODE             = 2;
-    localparam COMMAND_VALUE            = 3;
-    localparam COMMAND_GAIN             = 4;
-    localparam COMMAND_SETCHP           = 5;
-    localparam COMMAND_SETSTL           = 6;
-    localparam COMMAND_SET0L            = 7;
-    localparam COMMAND_SET1L            = 8;
-    localparam COMMAND_SETBRL           = 9;
-    localparam COMMAND_SETDTA           = 10;
-    localparam COMMAND_START            = 11;
-    localparam COMMAND_RESET            = 12;
+    localparam COMMAND_GAIN             = 2;
+    localparam COMMAND_SETCHP           = 3;
+    localparam COMMAND_FREQ             = 4;
+    localparam COMMAND_WIDTH            = 3;
+    localparam COMMAND_SETSTL           = 4;
+    localparam COMMAND_SET0L            = 5;
+    localparam COMMAND_SET1L            = 6;
+    localparam COMMAND_SETBRL           = 7;
+    localparam COMMAND_SETDTA           = 8;
+    localparam COMMAND_START            = 9;
+    localparam COMMAND_RESET            = 10;
+    localparam COMMAND_TRIG             = 11;
+    localparam COMMAND_THOLD            = 12;
+    localparam COMMAND_MAXSMP           = 13;
+    localparam COMMAND_FORCE            = 14;
     localparam COMMAND_NONE             = 15;
 
     localparam STRING_DELIM_DST         = 8'h3A;                // ":"
@@ -53,6 +57,12 @@
     localparam STRING_CMD_SETBRL        = 48'h53455442524C;     // "SETBRL"
     localparam STRING_CMD_START         = 40'h5354415254;       // "START"
     localparam STRING_CMD_RESET         = 40'h5245534554;       // "RESET"
+    localparam STRING_CMD_TRIG          = 32'h54524947;         // "TRIG"
+    localparam STRING_CMD_THOLD         = 40'h54484F4C44;       // "THOLD"
+    localparam STRING_CMD_MAXSMP        = 48'h4D4158534D50;     // "MAXSMP"
+    localparam STRING_CMD_WIDTH         = 40'h5749445448;       // "WIDTH"
+    localparam STRING_CMD_FREQ          = 32'h46524551;         // "FREQ"
+    localparam STRING_CMD_FORCE         = 40'h464F524345;       // "FORCE"
 
     
     function [39:0] bin2ascii10000 (input [15:0] bin);
@@ -85,7 +95,7 @@
                 4'b111?: bin2ascii10000 = {24'b0, 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
                 4'b11??: bin2ascii10000 = {16'b0, 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
                 4'b1???: bin2ascii10000 = { 8'b0, 4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
-                default: bin2ascii10000 = { 0'b0, 4'b0011, bcd[19:16], 4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+                default: bin2ascii10000 = {       4'b0011, bcd[19:16], 4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
             endcase
         end
     endfunction
@@ -117,7 +127,7 @@
                 3'b111 : bin2ascii1000 = {24'b0, 4'b0011, bcd[3:0]};
                 3'b11? : bin2ascii1000 = {16'b0, 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
                 3'b1?? : bin2ascii1000 = { 8'b0, 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
-                default: bin2ascii1000 = { 0'b0, 4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+                default: bin2ascii1000 = {       4'b0011, bcd[15:12], 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
             endcase
         end
     endfunction
@@ -146,7 +156,7 @@
             casex (zeros[2:1])
                 2'b11  : bin2ascii100 = {16'b0, 4'b0011, bcd[3:0]};
                 2'b1?  : bin2ascii100 = { 8'b0, 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
-                default: bin2ascii100 = { 0'b0, 4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+                default: bin2ascii100 = {       4'b0011, bcd[11:8], 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
             endcase
         end
     endfunction
@@ -172,7 +182,7 @@
             // write ascii output w/ removed leading zeros (up to 1)
             casex (zeros[1:1])
                 1'b1   : bin2ascii10 = { 8'b0, 4'b0011, bcd[3:0]};
-                default: bin2ascii10 = { 0'b0, 4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
+                default: bin2ascii10 = {       4'b0011, bcd[7:4], 4'b0011, bcd[3:0]};
             endcase
         end
     endfunction

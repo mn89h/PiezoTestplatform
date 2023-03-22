@@ -133,8 +133,6 @@ module serial_rx_handler(
     wire [3:0] rx_cmd_wire;
     assign rx_cmd_wire = (cmd_buf == STRING_CMD_STATUS  ) ? COMMAND_STATUS  :
                          (cmd_buf == STRING_CMD_POWER   ) ? COMMAND_POWER   :
-                         (cmd_buf == STRING_CMD_MODE    ) ? COMMAND_MODE    :
-                         (cmd_buf == STRING_CMD_VALUE   ) ? COMMAND_VALUE   :
                          (cmd_buf == STRING_CMD_GAIN    ) ? COMMAND_GAIN    :
                          (cmd_buf == STRING_CMD_SETDTA  ) ? COMMAND_SETDTA  :
                          (cmd_buf == STRING_CMD_SETCHP  ) ? COMMAND_SETCHP  :
@@ -144,6 +142,12 @@ module serial_rx_handler(
                          (cmd_buf == STRING_CMD_SETBRL  ) ? COMMAND_SETBRL  :
                          (cmd_buf == STRING_CMD_START   ) ? COMMAND_START   :
                          (cmd_buf == STRING_CMD_RESET   ) ? COMMAND_RESET   :
+                         (cmd_buf == STRING_CMD_TRIG    ) ? COMMAND_TRIG    :
+                         (cmd_buf == STRING_CMD_THOLD   ) ? COMMAND_THOLD   :
+                         (cmd_buf == STRING_CMD_MAXSMP  ) ? COMMAND_MAXSMP  :
+                         (cmd_buf == STRING_CMD_WIDTH   ) ? COMMAND_WIDTH   :
+                         (cmd_buf == STRING_CMD_FREQ    ) ? COMMAND_FREQ    :
+                         (cmd_buf == STRING_CMD_FORCE   ) ? COMMAND_FORCE   :
                                                             COMMAND_NONE    ;
 
     wire [12:0] rx_val_wire;

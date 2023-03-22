@@ -52,7 +52,7 @@ module top(
 
     output wire adc_clk_pin,
     output wire adc_en_pin,
-    input wire [9:0] adc_in_pins,
+    input wire signed [9:0] adc_in_pins,
 
     output wire comp_en_pin,
     input wire comp_in_pin
@@ -62,19 +62,28 @@ module top(
 // ----------------------------------------------PARAMETERS----------------------------------------------
 
 // comm_protocol Parameters
-parameter DEFAULT_DATA        = 4'b0101   ;     parameter DEFAULT_DATA_ASCII  = 16'h35    ;
-parameter DEFAULT_CHP         = 12'd100   ;     parameter DEFAULT_CHP_ASCII   = 32'h313030;
-parameter DEFAULT_STL         = 16'd500   ;     parameter DEFAULT_STL_ASCII   = 40'h353030;
-parameter DEFAULT_0L          = 12'd100   ;     parameter DEFAULT_0L_ASCII    = 32'h313030;
-parameter DEFAULT_1L          = 12'd200   ;     parameter DEFAULT_1L_ASCII    = 32'h323030;
-parameter DEFAULT_BRL         = 16'd200   ;     parameter DEFAULT_BRL_ASCII   = 40'h323030;
+parameter DEFAULT_DATA      = 4'b0101       ;   parameter DEFAULT_DATA_ASCII  = 16'h35    ;
+parameter DEFAULT_CHP       = 12'd100       ;   parameter DEFAULT_CHP_ASCII   = 32'h313030;
+parameter DEFAULT_STL       = 16'd500       ;   parameter DEFAULT_STL_ASCII   = 40'h353030;
+parameter DEFAULT_0L        = 12'd100       ;   parameter DEFAULT_0L_ASCII    = 32'h313030;
+parameter DEFAULT_1L        = 12'd200       ;   parameter DEFAULT_1L_ASCII    = 32'h323030;
+parameter DEFAULT_BRL       = 16'd200       ;   parameter DEFAULT_BRL_ASCII   = 40'h323030;
+
+
+// adc_driver Parameters
+parameter DEFAULT_POWER     = 1'b1          ;   parameter DEFAULT_POWER_ASCII   = 8'h31         ;
+parameter DEFAULT_TRIG      = 1'b0          ;   parameter DEFAULT_TRIG_ASCII    = 8'h30         ;
+parameter DEFAULT_THOLD     = 8'd64         ;   parameter DEFAULT_THOLD_ASCII   = 24'h64        ;
+parameter DEFAULT_MAXSMP    = 16'd40000     ;   parameter DEFAULT_MAXSMP_ASCII  = 40'h3430303030;
+parameter DEFAULT_WIDTH	    = 4'd5          ;   parameter DEFAULT_WIDTH_ASCII  	= 16'h35        ;
+parameter DEFAULT_FREQ      = 14'd5000      ;   parameter DEFAULT_FREQ_ASCII	= 40'h35303030  ; // 250..10000 [kHz] in 250 [kHz] steps
 
 
 // ------------------------------------------------WIRES-------------------------------------------------
 
 wire sysclk;
-wire clk_10;
-wire clk_100;
+wire clk_10;  // unused
+wire clk_100; // generated from clk_wizard, TODO: mmcme2
 
 // serial interface
 wire [2:0] rx_dst;
@@ -95,6 +104,8 @@ wire comp_data_ready;
 
 // adc_driver
 wire adc_data_ready;
+wire adc_data_valid;
+wire [7:0]  adc_data;
 
 // comm_protocol
 wire comm_data_ready;
@@ -120,11 +131,7 @@ assign led4_pin = 0;
 assign extled1_pin = comm_fin;
 assign extled2_pin = extsw1_down;
 
-assign vga_en_pin = 1;
-assign comp_en_pin = 0;
-assign adc_clk_pin = 0;
-assign adc_en_pin = 1;
-
+assign comp_en_pin = 0; // 0=disable, 1=enable TODO: comp module
 
 // -----------------------------------------MODULE INSTANTIATIONS----------------------------------------
 
@@ -185,7 +192,6 @@ serial_interface  u_serial_interface (
     .comm_data_ready         ( comm_data_ready   )
 );
 
-
 comm_protocol #(
     .DEFAULT_DATA           ( DEFAULT_DATA          ),
     .DEFAULT_DATA_ASCII     ( DEFAULT_DATA_ASCII    ),
@@ -236,10 +242,37 @@ vga_driver  u_vga_driver (
     .tx_data                 ( vga_data       ),
 
     .dac_value               ( vga_gain_pins  ),
+    .vga_enable              ( vga_en_pin     ),
 
     .led0                    ( extled3_pin    ),
     .led1                    ( extled4_pin    ),
     .led2                    ( extled5_pin    ),
     .led3                    ( extled6_pin    )
+);
+
+wire  trigger_out; // TODO: to comp module
+
+adc_driver #(
+   .DEFAULT_POWER        ( DEFAULT_POWER           ),
+   .DEFAULT_POWER_ASCII  ( DEFAULT_POWER_ASCII     ),
+   .DEFAULT_TRIG         ( DEFAULT_TRIG            ),
+   .DEFAULT_TRIG_ASCII   ( DEFAULT_TRIG_ASCII      ),
+   .DEFAULT_THOLD        ( DEFAULT_THOLD           ),
+   .DEFAULT_THOLD_ASCII  ( DEFAULT_THOLD_ASCII     ),
+   .DEFAULT_MAXSMP       ( DEFAULT_MAXSMP          ),
+   .DEFAULT_MAXSMP_ASCII ( DEFAULT_MAXSMP_ASCII    ))
+u_adc_driver (
+   .clk                          ( sysclk                        ),
+   .clk_adc                      ( adc_clk_pin                   ),
+   .adc_in                       ( adc_in_pins                   ),
+   .rx_dst                       ( rx_dst                        ),
+   .rx_cmd                       ( rx_cmd                        ),
+   .rx_val                       ( rx_val                        ),
+   .rx_fin                       ( rx_fin                        ),
+   .tx_ready                     ( adc_data_ready                ),
+   .tx_valid                     ( adc_data_valid                ),
+   .tx_data                      ( adc_data                      ),
+   .adc_en                       ( adc_en_pin                    ),
+   .trigger_out                  (                               )
 );
 endmodule
