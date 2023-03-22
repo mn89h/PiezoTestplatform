@@ -125,7 +125,7 @@ module adc_driver #(
 
 	reg [2:0] 		 state_tx 	  = TX_IDLE;
 	reg [SZ_BUF-1:0] write_buffer = 0;
-	reg [5:0]		 tx_count	  = 0;
+	reg [6:0]		 tx_count	  = 0;
 	reg 			 tx_start  	  = 0;
 
 
@@ -187,17 +187,15 @@ module adc_driver #(
 					tx_start 		<= 1;
 				end
 				COMMAND_STATUS: begin
-					if (state_tx == TX_IDLE) begin
-						write_buffer <= {ascii_txt_power, ascii_val_power, ascii_lf,
-										 ascii_txt_trig, ascii_val_trig , ascii_lf, 
-										 ascii_txt_thold, ascii_val_thold , ascii_lf, 
-										 ascii_txt_maxsmp, ascii_val_maxsmp , ascii_lf,
-										 ascii_txt_width, ascii_val_width, ascii_lf, 
-										 ascii_txt_freq, ascii_val_freq, ascii_lf, 
-										 {SZ_BUF-528{1'b0}}};
-						tx_start <= 1;
-						tx_count <= 66;
-					end
+					write_buffer <= {ascii_txt_power, ascii_val_power, ascii_lf,
+									 ascii_txt_trig, ascii_val_trig , ascii_lf, 
+									 ascii_txt_thold, ascii_val_thold , ascii_lf, 
+									 ascii_txt_maxsmp, ascii_val_maxsmp , ascii_lf,
+									 ascii_txt_width, ascii_val_width, ascii_lf, 
+									 ascii_txt_freq, ascii_val_freq, ascii_lf, 
+									 {SZ_BUF-512{1'b0}}};
+					tx_start <= 1;
+					tx_count <= 64;
 				end
 				COMMAND_TRIG: begin
 					recv_value		 = rx_val[0];
@@ -276,8 +274,8 @@ module adc_driver #(
 					ascii_val_width 	<= recv_value_ascii;
 					
 					write_buffer	<= {ascii_txt_width, recv_value_ascii, ascii_lf,
-										{SZ_BUF-80{1'b0}}};
-					tx_count 		<= 10;
+										{SZ_BUF-104{1'b0}}};
+					tx_count 		<= 13;
 					tx_start 		<= 1;
 				end
 				COMMAND_RESET: begin
@@ -299,9 +297,6 @@ module adc_driver #(
 				end
 				else if (outfifo_vld && !reset_w_stretched) begin
 					state_tx 			<= #1 TX_STRM;
-					// tx_valid			<= #1 1'b1;
-					// tx_data				<= #1 sample_stream;
-					// send_sample_stream	<= #1 1'b1;
 				end
 				else begin
 					state_tx			<= #1 TX_IDLE;
@@ -321,51 +316,18 @@ module adc_driver #(
 					state_tx			<= #1 TX_IDLE;
 				end
 			end
-			// TX_STRM: begin
-			// 	send_sample_stream	<= #1 1'b0;
-			// 	if (tx_ready == 1) begin
-			// 		if (outfifo_vld == 1) begin
-			// 			tx_valid			<= #1 1'b1;
-			// 			tx_data				<= #1 sample_stream;
-			// 			send_sample_stream	<= #1 1'b1;
-			// 		end
-			// 		else begin
-			// 			tx_valid			<= #1 1'b0;
-			// 			state_tx			<= #1 TX_IDLE;
-			// 		end
-			// 	end
-			// end
-			// TX_OFFR: begin
-			// 	if (tx_count != 0) begin  								// if write_buffer not empty,
-			// 		tx_valid 	<= #1 1;                              	// offer tx_data
-			// 		tx_data 	<= #1 write_buffer[SZ_BUF-1:SZ_BUF-8];
-			// 		state_tx 	<= #1 TX_WAIT;                          // change to wait state
-			// 	end
-			// 	else begin
-			// 		state_tx 	<= #1 TX_IDLE;
-			// 		tx_valid 	<= #1 0;
-			// 	end
-			// end
 			TX_OFFR: begin
 				if (tx_count > 0) begin	
 					tx_data 	<= #1 write_buffer[SZ_BUF-1:SZ_BUF-8];
-					tx_valid	<= 1;
+					tx_valid	<= #1 1'b1;
 					if (tx_ready) begin
 						write_buffer <= #1 write_buffer << 8;
 						tx_count <= #1 tx_count - 1;
 					end
 				end
 				else begin
-					tx_valid	<= #1 0;
+					tx_valid	<= #1 1'b0;
 					state_tx	<= #1 TX_IDLE;
-				end
-			end
-			TX_WAIT: begin
-				if (tx_ready) begin                                 // if tx accepted the byte
-					// write_buffer <= write_buffer << tx_shift_amount;// left-shift write buffer to select next byte
-					write_buffer <= #1 write_buffer << 8;
-					state_tx <= #1 TX_OFFR;                            // and change to offer state
-					tx_count <= #1 tx_count - 1;
 				end
 			end
 		endcase

@@ -73,7 +73,7 @@ parameter DEFAULT_BRL       = 16'd200       ;   parameter DEFAULT_BRL_ASCII   = 
 // adc_driver Parameters
 parameter DEFAULT_POWER     = 1'b1          ;   parameter DEFAULT_POWER_ASCII   = 8'h31         ;
 parameter DEFAULT_TRIG      = 1'b0          ;   parameter DEFAULT_TRIG_ASCII    = 8'h30         ;
-parameter DEFAULT_THOLD     = 8'd64         ;   parameter DEFAULT_THOLD_ASCII   = 24'h64        ;
+parameter DEFAULT_THOLD     = 8'd64         ;   parameter DEFAULT_THOLD_ASCII   = 24'h3634      ;
 parameter DEFAULT_MAXSMP    = 16'd40000     ;   parameter DEFAULT_MAXSMP_ASCII  = 40'h3430303030;
 parameter DEFAULT_WIDTH	    = 4'd5          ;   parameter DEFAULT_WIDTH_ASCII  	= 16'h35        ;
 parameter DEFAULT_FREQ      = 14'd5000      ;   parameter DEFAULT_FREQ_ASCII	= 40'h35303030  ; // 250..10000 [kHz] in 250 [kHz] steps
