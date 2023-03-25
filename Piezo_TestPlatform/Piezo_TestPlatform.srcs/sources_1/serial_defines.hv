@@ -19,10 +19,11 @@
     localparam COMMAND_POWER            = 1;
     localparam COMMAND_GAIN             = 2;
     localparam COMMAND_SETCHP           = 3;
-    localparam COMMAND_FREQ             = 4;
     localparam COMMAND_WIDTH            = 3;
     localparam COMMAND_SETSTL           = 4;
+    localparam COMMAND_FREQ             = 4;
     localparam COMMAND_SET0L            = 5;
+    localparam COMMAND_SIM              = 5;
     localparam COMMAND_SET1L            = 6;
     localparam COMMAND_SETBRL           = 7;
     localparam COMMAND_SETDTA           = 8;
@@ -62,6 +63,7 @@
     localparam STRING_CMD_MAXSMP        = 48'h4D4158534D50;     // "MAXSMP"
     localparam STRING_CMD_WIDTH         = 40'h5749445448;       // "WIDTH"
     localparam STRING_CMD_FREQ          = 32'h46524551;         // "FREQ"
+    localparam STRING_CMD_SIM           = 24'h53494D;           // "SIM"
     localparam STRING_CMD_FORCE         = 40'h464F524345;       // "FORCE"
 
     

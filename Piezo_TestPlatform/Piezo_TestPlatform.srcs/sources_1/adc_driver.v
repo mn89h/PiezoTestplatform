@@ -60,27 +60,52 @@ module adc_driver #(
 );
 	`include "serial_defines.hv"
 
-	localparam DEFAULT_FREQSTATE = (DEFAULT_FREQ / 250) - 1;	// freq_state for mmcme2_drp state machine
-	localparam FIFO_WIDTH_BYTES = 6;							// width of a fifo word (change may require changing bram_fifo depth to meet fpga specs)
-	localparam FIFO_WIDTH = FIFO_WIDTH_BYTES * 8;				
-	localparam MAX_SAMPLE_WIDTH = 10;							// fixed value based on board and adc
-
-	localparam TX_IDLE = 3'd0;
-	localparam TX_STRM = 3'd1;
-	localparam TX_OFFR = 3'd2;
-	localparam TX_WAIT = 3'd3;
-	localparam SZ_BUF = 536;
+	localparam DEFAULT_FREQSTATE 	= (DEFAULT_FREQ / 250) - 1;	// freq_state for mmcme2_drp state machine
+	localparam FIFO_WIDTH_BYTES 	= 6;						// width of a fifo word (change may require changing bram_fifo depth to meet fpga specs)
+	localparam FIFO_WIDTH 			= FIFO_WIDTH_BYTES * 8;				
+	localparam MAX_SAMPLE_WIDTH 	= 10;						// fixed value based on board and adc
 
 	integer ii;
 
-	reg reset = 1'b1;
-	reg [5:0]  freq_state 	= DEFAULT_FREQSTATE;
+	//-------------------------------------RESET------------------------------------------
+	//
+	// Reset signal handling.
+	// Currently reset_w is applied if frequency is updated or sample streaming is finished.
+	// Mainly used to clear FIFOs in order to clear unfilled data (remaining in infifo) and
+	// specified usage of BRAM in case of frequency change
+
+	reg  reset 		= 1'b1;
+	wire reset_w 	= freq_update | reset;
+	wire reset_w_extd;
+	wire reset_w_extd_adc;
+
+	pulse_stretcher #(
+		.NUM_STRETCH_CYCLES(4000) // long stretching for long enough reset (equivalent to >2 cycles @ 250 kHz)
+	) u_pulse_stretcher_freq_update (
+		.clk		(clk),
+		.pulse_src	(reset_w),
+		.pulse_dst	(reset_w_extd)
+	);
+
+	xpm_cdc_single #( // version 2020.2
+		.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
+		.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
+		.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
+		.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
+	) u_cdc_bram_reset ( 
+		.dest_out	(reset_w_extd_adc),		// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
+		.dest_clk	(clk_adc),				// 1-bit input: Clock signal for the destination clock domain. 
+		.src_clk	(clk),					// 1-bit input: optional; required when SRC_INPUT_REG = 1 
+		.src_in		(reset_w_extd)			// 1-bit input: Input signal to be synchronized to dest_clk domain.
+	);
 
 	//-------------------------------------CLK WIZARD-------------------------------------
 	// 
 	// Changes the frequency on freq_state and freq_update input. Keep freq_update high for
 	// only one cycle.
 	// Additional reset generation for BRAM fifo for frequency change (TODO: needed?, initial rst?)
+
+	reg [5:0]  freq_state 	= DEFAULT_FREQSTATE;
 
 	adc_clkgen  u_adc_clkgen (
 		.SSTEP                   ( freq_update  ),
@@ -91,63 +116,47 @@ module adc_driver #(
 		.LOCKED_OUT              ( freq_locked  ),
 		.CLK_ADC                 ( clk_adc      )
 	);
-
-	wire reset_w = freq_update | reset;
-
-	// freq_update
-	wire reset_w_stretched;
-
-	pulse_stretcher #(
-		.NUM_STRETCH_CYCLES(4000) // long stretching for long enough reset
-	) u_pulse_stretcher_freq_update (
-		.clk		(clk),
-		.pulse_src	(reset_w),
-		.pulse_dst	(reset_w_stretched)
-	);
-
-	//trigger_out
-	xpm_cdc_single #( // version 2020.2
-		.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
-		.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
-		.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
-		.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
-	) u_cdc_bram_reset ( 
-		.dest_out	(bram_reset),			// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
-		.dest_clk	(clk_adc),				// 1-bit input: Clock signal for the destination clock domain. 
-		.src_clk	(clk),					// 1-bit input: optional; required when SRC_INPUT_REG = 1 
-		.src_in		(reset_w_stretched)	// 1-bit input: Input signal to be synchronized to dest_clk domain.
-	);
 	
 
 	//-------------------------------------RX/TX HANDLING-------------------------------------
 	//
 	// RX/TX handling via buttons and serial communication.
 
+	localparam SZ_BUF 		= 536;
+
+	localparam TX_IDLE		= 3'b000;
+	localparam TX_HEAD1		= 3'b001;
+	localparam TX_HEAD2		= 3'b010;
+	localparam TX_STREAM	= 3'b011;
+	localparam TX_TAIL1		= 3'b100;
+	localparam TX_TAIL2		= 3'b101;
+	localparam TX_TAIL3		= 3'b110;
+	localparam TX_SEND 		= 3'b111;
+
+	// local variables for text output string concat
+	localparam ASCII_TXT_POWER	= 56'h504F5745523A20;	// "POWER: "
+	localparam ASCII_TXT_TRIG  	= 48'h545249473A20;		// "TRIG: "
+	localparam ASCII_TXT_THOLD 	= 56'h54484F4C443A20; 	// "THOLD: "
+	localparam ASCII_TXT_MAXSMP = 64'h4D4158534D503A20; // "MAXSMP: "
+	localparam ASCII_TXT_WIDTH 	= 56'h57494454483A20; 	// "WIDTH: "
+	localparam ASCII_TXT_FREQ 	= 48'h465245513A20; 	// "FREQ: "
+	localparam ASCII_LF        	= 8'h0A;	 			// "\n"
+
 	reg [2:0] 		 state_tx 	  = TX_IDLE;
 	reg [SZ_BUF-1:0] write_buffer = 0;
 	reg [6:0]		 tx_count	  = 0;
 	reg 			 tx_start  	  = 0;
 
-
-	reg trigger 			= DEFAULT_TRIG;
 	reg signed [MAX_SAMPLE_WIDTH-1:0] trigger_threshold = DEFAULT_THOLD;
+	reg trigger 			= DEFAULT_TRIG;
 	reg [15:0] max_samples 	= DEFAULT_MAXSMP;
 	reg [3:0]  width		= DEFAULT_WIDTH;
-	reg force_single 		= 1'b0;
-	reg freq_update 		= 1'b1;
-	reg config_rdy			= 1'b0;
-	wire freq_locked;
-
-	localparam STRING_VAL_DFLT  = 40'h44464C54;		// "DFLT", unused
+	reg sim_switch			= 1'b0;				// signal to use simulated data instead of real input
+	reg force_single 		= 1'b0;				// pulse to force immediate trigger
+	reg freq_update 		= 1'b1;				// pulse to update frequency
+	reg config_rdy			= 1'b0;				// pulse to transfer updated configuration to clk_adc domain
+	wire freq_locked; // unused
 	
-	// local variables for text output string concat
-	wire [55:0] ascii_txt_power  	= 56'h504F5745523A20;	// "POWER: "
-	wire [47:0] ascii_txt_trig  	= 48'h545249473A20;		// "TRIG: "
-	wire [55:0] ascii_txt_thold 	= 56'h54484F4C443A20; 	// "THOLD: "
-	wire [63:0] ascii_txt_maxsmp  	= 64'h4D4158534D503A20; // "MAXSMP: "
-	wire [55:0] ascii_txt_width 	= 56'h57494454483A20; 	// "WIDTH: "
-	wire [47:0] ascii_txt_freq 		= 48'h465245513A20; 	// "FREQ: "
-	wire [7:0]  ascii_lf        	= 8'h0A;	 			// "\n"
 
 	// registers for values output string concat
 	reg [7:0] ascii_val_trig		= DEFAULT_TRIG_ASCII;
@@ -163,17 +172,21 @@ module adc_driver #(
 	
 	always@(posedge clk) begin
 
-		// reset pulses
+		// unset pulses
 		force_single			<= 1'b0;
-		config_rdy				<= 1'b0;
+		if (config_rcv)
+			config_rdy			<= 1'b0;
 		tx_start				<= 1'b0;
 		reset 					<= 1'b0;
-		if (freq_locked == 1)
-			freq_update			<= 1'b0;
+		freq_update				<= 1'b0; // freq_update should only pulse for one cycle, reset_w stretched fixed amount of cycles
+		// // unset freq_update only after freq is locked for sufficient reset_w duration
+		// if (freq_locked == 1)
+		// 	freq_update			<= 1'b0;
 
-		// rx handler
+		//-------------------------------------RX HANDLER-------------------------------------
 		if (rx_fin && rx_dst == DESTINATION_ADC) begin
 			case (rx_cmd)
+				// ADC:POWER [0/1]: enables/disables adc.
 				COMMAND_POWER: begin
 					recv_value		 = rx_val[0];
 					recv_value_ascii = bin2ascii10000(recv_value);
@@ -181,22 +194,24 @@ module adc_driver #(
 					adc_en 			<= ~recv_value;
 					ascii_val_power <= recv_value_ascii;
 					
-					write_buffer	<= {ascii_txt_power, recv_value_ascii, ascii_lf,
+					write_buffer	<= {ASCII_TXT_POWER, recv_value_ascii, ASCII_LF,
 										{SZ_BUF-104{1'b0}}};
 					tx_count 		<= 13;
 					tx_start 		<= 1;
 				end
+				// ADC:STATUS [<any number>]: return status message.
 				COMMAND_STATUS: begin
-					write_buffer <= {ascii_txt_power, ascii_val_power, ascii_lf,
-									 ascii_txt_trig, ascii_val_trig , ascii_lf, 
-									 ascii_txt_thold, ascii_val_thold , ascii_lf, 
-									 ascii_txt_maxsmp, ascii_val_maxsmp , ascii_lf,
-									 ascii_txt_width, ascii_val_width, ascii_lf, 
-									 ascii_txt_freq, ascii_val_freq, ascii_lf, 
+					write_buffer <= {ASCII_TXT_POWER	, ascii_val_power	, ASCII_LF,
+									 ASCII_TXT_TRIG		, ascii_val_trig	, ASCII_LF, 
+									 ASCII_TXT_THOLD	, ascii_val_thold	, ASCII_LF, 
+									 ASCII_TXT_MAXSMP	, ascii_val_maxsmp	, ASCII_LF,
+									 ASCII_TXT_WIDTH	, ascii_val_width	, ASCII_LF, 
+									 ASCII_TXT_FREQ		, ascii_val_freq	, ASCII_LF, 
 									 {SZ_BUF-512{1'b0}}};
 					tx_start <= 1;
 					tx_count <= 64;
 				end
+				// ADC:TRIG [0/1]: enable triggering according to threshold.
 				COMMAND_TRIG: begin
 					recv_value		 = rx_val[0];
 					recv_value_ascii = bin2ascii10000(recv_value);
@@ -205,11 +220,12 @@ module adc_driver #(
 					config_rdy 		<= 1'b1;
 					ascii_val_trig 	<= recv_value_ascii;
 					
-					write_buffer	<= {ascii_txt_trig, recv_value_ascii, ascii_lf,
+					write_buffer	<= {ASCII_TXT_TRIG, recv_value_ascii, ASCII_LF,
 										{SZ_BUF-96{1'b0}}};
 					tx_count 		<= 12;
 					tx_start 		<= 1;
 				end
+				// ADC:THOLD [0..1023]: set threshold. IMPORTANT: signed number -> values >511 are negative.
 				COMMAND_THOLD: begin
 					recv_value		 = rx_val[MAX_SAMPLE_WIDTH-1:0];
 					recv_value_ascii = bin2ascii10000(recv_value);
@@ -218,11 +234,12 @@ module adc_driver #(
 					config_rdy 				<= 1'b1;
 					ascii_val_thold 		<= recv_value_ascii;
 					
-					write_buffer	<= {ascii_txt_thold, recv_value_ascii, ascii_lf,
+					write_buffer	<= {ASCII_TXT_THOLD, recv_value_ascii, ASCII_LF,
 										{SZ_BUF-104{1'b0}}};
 					tx_count 		<= 13;
 					tx_start 		<= 1;
 				end
+				// ADC:MAXSMP [0..65535]: set maximum amount of samples. '0' equals maximum samples (18'd262.143).
 				COMMAND_MAXSMP: begin
 					recv_value		 = rx_val[15:0];
 					recv_value_ascii = bin2ascii10000(recv_value);
@@ -231,22 +248,24 @@ module adc_driver #(
 					config_rdy 			<= 1'b1;
 					ascii_val_maxsmp 	<= recv_value_ascii;
 					
-					write_buffer	<= {ascii_txt_maxsmp, recv_value_ascii, ascii_lf,
+					write_buffer	<= {ASCII_TXT_MAXSMP, recv_value_ascii, ASCII_LF,
 										{SZ_BUF-112{1'b0}}};
 					tx_count 		<= 14;
 					tx_start 		<= 1;
 				end
+				// ADC:FORCE [<any number>]: force immediate triggering.
 				COMMAND_FORCE: begin
 					force_single <= 1'b1;
 
-					write_buffer	<= {96'h464F5243452053494E474C45, ascii_lf, // "FORCE SINGLE"
+					write_buffer	<= {96'h464F5243452053494E474C45, ASCII_LF, // "FORCE SINGLE"
 										{SZ_BUF-104{1'b0}}};
 					tx_count 		<= 13;
 					tx_start 		<= 1;
 				end
+				// ADC:FREQ [250..10000]: sets sampling frequency in kHz if input is valid. steps of 250 kHz.
 				COMMAND_FREQ: begin
 					recv_value		 = rx_val;
-					recv_value_ascii = 'h494E56; // "INV"
+					recv_value_ascii = 40'h494E56; // "INV"
 
 					for (ii = 1; ii <= 40; ii = ii + 1) begin
 						if (recv_value == (ii * 250)) begin
@@ -258,11 +277,12 @@ module adc_driver #(
 						end
 					end
 
-					write_buffer	<= {ascii_txt_freq, recv_value_ascii, ascii_lf,
+					write_buffer	<= {ASCII_TXT_FREQ, recv_value_ascii, ASCII_LF,
 										{SZ_BUF-96{1'b0}}};
 					tx_count 		<= 12;
 					tx_start 		<= 1;
 				end
+				// ADC:WIDTH [0..10]: sets sampling width.  
 				COMMAND_WIDTH: begin
 					recv_value		 = rx_val[3:0];
 					if (recv_value > 4'd10)
@@ -273,38 +293,70 @@ module adc_driver #(
 					config_rdy 			<= 1'b1;
 					ascii_val_width 	<= recv_value_ascii;
 					
-					write_buffer	<= {ascii_txt_width, recv_value_ascii, ascii_lf,
+					write_buffer	<= {ASCII_TXT_WIDTH, recv_value_ascii, ASCII_LF,
 										{SZ_BUF-104{1'b0}}};
 					tx_count 		<= 13;
 					tx_start 		<= 1;
 				end
+				// ADC:RESET [<any number>]: resets signals (TODO) and applies reset (emptiing fifos)
 				COMMAND_RESET: begin
-					reset <= 1;
+					reset 			<= 1;
 
-					write_buffer	<= {64'h5245534554204F4B, ascii_lf, // RESET OK
+					write_buffer	<= {64'h5245534554204F4B, ASCII_LF, // "RESET OK"
 										{SZ_BUF-72{1'b0}}};
 					tx_count 		<= 9;
+					tx_start 		<= 1;
+				end
+				// ADC:SIM [0/1]: use simulation data instead of adc_in pins input
+				COMMAND_SIM: begin
+					recv_value		 = rx_val[0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					sim_switch		<= recv_value;
+					config_rdy 		<= 1'b1;
+
+					write_buffer	<= {40'h53494D3A20, recv_value_ascii, ASCII_LF, // "SIM: "
+										{SZ_BUF-88{1'b0}}};
+					tx_count 		<= 11;
 					tx_start 		<= 1;
 				end
 			endcase
 		end
 
-		// tx handler
+		//-------------------------------------TX HANDLER-------------------------------------
 		case (state_tx)
+			// Wait for reply data or stored samples
 			TX_IDLE: begin
+				tx_valid	<= #1 1'b0;
+
+				// start data transmission from buffer if tx_start
 				if (tx_start) begin	
-					state_tx 			<= #1 TX_OFFR;
+					state_tx 			<= #1 TX_SEND;
 				end
-				else if (outfifo_vld && !reset_w_stretched) begin
-					state_tx 			<= #1 TX_STRM;
-				end
-				else begin
-					state_tx			<= #1 TX_IDLE;
+				// start data streaming from fifo if not empty
+				else if (outfifo_vld && !reset_w_extd) begin
+					state_tx 			<= #1 TX_HEAD1;
 				end
 			end
-			TX_STRM: begin
+			// Mark start of stream with 8'h80 (HEAD1) and 8'7F (HEAD2)
+			TX_HEAD1: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 8'b10000000;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_HEAD2;
+				end
+			end
+			TX_HEAD2: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 8'b01111111;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_STREAM;
+				end
+			end
+			// Stream samples from outfifo, get next sample (send_sample_stream) if tx_ready
+			TX_STREAM: begin
 				send_sample_stream 		<= #1 1'b0;
-				if (outfifo_vld == 1 && !reset_w_stretched) begin
+				if (outfifo_vld == 1 && !reset_w_extd) begin
 					tx_valid			<= #1 1'b1;
 					tx_data				<= #1 sample_stream;
 					if (tx_ready) begin
@@ -313,16 +365,41 @@ module adc_driver #(
 				end
 				else begin
 					tx_valid			<= #1 1'b0;
-					state_tx			<= #1 TX_IDLE;
+					state_tx			<= #1 TX_TAIL1;
 				end
 			end
-			TX_OFFR: begin
+			// Mark end of stream with 8'7F (TAIL1) and 8'h80 (TAIL2) and 8'h0A (TAIL3: line feed)
+			TX_TAIL1: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 8'b01111111;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_TAIL2;
+				end
+			end
+			TX_TAIL2: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 8'b10000000;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_TAIL3;
+				end
+			end
+			TX_TAIL3: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 ASCII_LF;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_IDLE;
+					reset			<= #1 1'b1;		// apply reset for one cycle to empty fifos
+													// also resets clk_adc in current config, use extra signal if undesired
+				end
+			end
+			// Send buffered data as reply to RX
+			TX_SEND: begin
 				if (tx_count > 0) begin	
-					tx_data 	<= #1 write_buffer[SZ_BUF-1:SZ_BUF-8];
-					tx_valid	<= #1 1'b1;
+					tx_valid			<= #1 1'b1;
+					tx_data 			<= #1 write_buffer[SZ_BUF-1:SZ_BUF-8];
 					if (tx_ready) begin
-						write_buffer <= #1 write_buffer << 8;
-						tx_count <= #1 tx_count - 1;
+						write_buffer	<= #1 write_buffer << 8;
+						tx_count 		<= #1 tx_count - 1;
 					end
 				end
 				else begin
@@ -335,50 +412,86 @@ module adc_driver #(
 	end
 
 	//-------------------------------------ADC CONTROL-------------------------------------
+	//
+	// Handles incoming ADC data when triggered by force_trigger or exceeded threshold.
+	// Passes samples to infifo synchronously to clk_adc until bram is full or sample_count 
+	// is reached.
+	// Forwarding of last sampled data is not guaranteed, as infifo may not be filled in the
+	// last cycles.
+	// Also resets sample_count when it has reached 0:
+	// 		if (max_samples_adc == 0): sample_count = 18'd262.143 (MAXIMUM)
+	//		otherwise				 : sample_count = max_samples_adc (<16'd65.535)
 
 	reg signed [MAX_SAMPLE_WIDTH-1:0] trigger_threshold_adc = DEFAULT_THOLD;
 	reg [15:0] max_samples_adc 	= DEFAULT_MAXSMP;
 	reg [3:0] width_adc 		= DEFAULT_WIDTH;
 	reg trigger_adc 			= DEFAULT_TRIG;
+	reg sim_switch_adc			= 1'b0;
 	wire force_single_adc;
 	
-	reg trigger_out_adc 	= 1'b0;
-
-	reg [1:0] state_sample 	= 2'b0;
-	reg [17:0] sample_count = 18'b0;
 	reg triggered			= 1'b0;
+	reg [17:0] sample_count = 18'b0;
+	
+	localparam SAMPLE_RUN 	= 2'b01;
+	localparam SAMPLE_RST 	= 2'b10;
+	reg [1:0] state_sample 	= SAMPLE_RUN;
 
 	always@(posedge clk_adc) begin
 		sample_in_vld	<= 1'b0;
 		triggered 		<= 1'b0;
 		case (state_sample)
-			0: begin
-				if (force_single_adc || (trigger_adc && adc_in_sim > trigger_threshold_adc) || triggered) begin
-					if (sample_count > 0 && !bram_full) begin
-						sample_in		<= adc_in_sim >> (MAX_SAMPLE_WIDTH - width_adc);
-						sample_in_vld	<= 1'b1;
-						triggered 		<= 1'b1;
-						sample_count	<= sample_count - 1;
-					end
-					else begin
-						sample_in_vld	<= 1'b0;
-						triggered 		<= 1'b0;
-						sample_count	<= 1'b0;
-					end
+			// Run state: trigger on force signal or when threshold is exceeded
+			// 			  write samples to infifo and keep triggered until sample_count is reached or bram is full
+			SAMPLE_RUN: begin
+				if (force_single_adc || 
+					(trigger_adc && adc_in > trigger_threshold_adc && !sim_switch_adc) || 
+					(trigger_adc && sim_adc_in > trigger_threshold_adc && sim_switch_adc) || 
+					triggered) begin
+						if (sample_count > 0 && !bram_full) begin
+							if (sim_switch_adc)
+								sample_in		<= sim_adc_in >> (MAX_SAMPLE_WIDTH - width_adc);
+							else
+								sample_in		<= adc_in >> (MAX_SAMPLE_WIDTH - width_adc);
+							sample_in_vld	<= 1'b1;
+							triggered 		<= 1'b1;
+							sample_count	<= sample_count - 1;
+						end
+						else begin
+							sample_in_vld	<= 1'b0;
+							triggered 		<= 1'b0;
+							sample_count	<= 1'b0;
+							state_sample	<= SAMPLE_RST;
+						end
 				end
 				else begin
-					sample_in_vld		<= 1'b0;
+						sample_in_vld		<= 1'b0;
+				end
+			end
+			// Reset state: wait for applied reset in clk_adc domain
+			// 				optional TODO: for increased robustness wait for unset and deny sampling in case of reset
+			SAMPLE_RST: begin
+				if (reset_w_extd_adc) begin
+					state_sample	<= SAMPLE_RUN;
 				end
 			end
 		endcase
 
-		if (sample_count == 0) begin
+		// reset sample_count
+		if (sample_count == 0 || config_adc_changed) begin
 			if (max_samples_adc == 0)
 				sample_count <= {18{1'b1}};
 			else
 				sample_count <= max_samples_adc;
 		end
 	end
+
+	//-------------------------------------TRIGGER OUT-------------------------------------
+	//
+	// Controls trigger_out signal.
+	// Signal is set if threshold is exceeded irrelevant of adc trigger signal.
+	// Change if different behaviour is desired.
+
+	reg trigger_out_adc 	= 1'b0;
 	
 	always @(posedge clk_adc) begin
 		if (adc_in >= trigger_threshold_adc)
@@ -395,10 +508,12 @@ module adc_driver #(
 	// system clock domain.
 	
 	// config
-	localparam CONFIG_WIDTH = MAX_SAMPLE_WIDTH+16+4+1;
-	wire [CONFIG_WIDTH-1:0] config_w = {trigger_threshold, max_samples, width, trigger};
+	localparam CONFIG_WIDTH = MAX_SAMPLE_WIDTH+16+4+1+1;
+	wire [CONFIG_WIDTH-1:0] config_w = {trigger_threshold, max_samples, width, trigger, sim_switch};
 	wire [CONFIG_WIDTH-1:0] config_adc_w;
 	wire config_adc_vld;
+	wire config_rcv;
+	reg config_adc_changed;
 	
 	xpm_cdc_handshake #( // version 2020.2
 		.DEST_EXT_HSK	(0),			// DECIMAL; 0=internal handshake, 1=external handshake 
@@ -410,7 +525,7 @@ module adc_driver #(
 	) u_cdc_trigger_threshold ( 
 		.dest_out	(config_adc_w),		// WIDTH-bit output: Input bus (src_in) synchronized to destination clock domain.  This output is registered. 
 		.dest_req	(config_adc_vld),	// 1-bit output: Assertion of this signal indicates that new dest_out data has been  received and is ready to be used or captured by the destination logic. When  DEST_EXT_HSK = 1, this signal will deassert once the source handshake  acknowledges that the destination clock domain has received the transferred data.  When DEST_EXT_HSK = 0, this signal asserts for one clock period when dest_out bus  is valid. This output is registered. 
-		.src_rcv	(),					// 1-bit output: Acknowledgement from destination logic that src_in has been  received. This signal will be deasserted once destination handshake has fully  completed, thus completing a full data transfer. This output is registered. 
+		.src_rcv	(config_rcv),		// 1-bit output: Acknowledgement from destination logic that src_in has been  received. This signal will be deasserted once destination handshake has fully  completed, thus completing a full data transfer. This output is registered. 
 		.dest_ack	(),					// 1-bit input: optional; required when DEST_EXT_HSK = 1 
 		.dest_clk	(clk_adc),			// 1-bit input: Destination clock. 
 		.src_clk	(clk),				// 1-bit input: Source clock. 
@@ -419,11 +534,14 @@ module adc_driver #(
 	);
 
 	always @(posedge clk_adc) begin
+		config_adc_changed		<= 1'b0;
 		if (config_adc_vld) begin
-			trigger_adc				<= config_adc_w[0];
-			width_adc				<= config_adc_w[4:1];
-			max_samples_adc			<= config_adc_w[20:5];
-			trigger_threshold_adc 	<= config_adc_w[MAX_SAMPLE_WIDTH-1+21:21];
+			config_adc_changed		<= 1'b1;
+			sim_switch_adc			<= config_adc_w[0];
+			trigger_adc				<= config_adc_w[1];
+			width_adc				<= config_adc_w[5:2];
+			max_samples_adc			<= config_adc_w[21:6];
+			trigger_threshold_adc 	<= config_adc_w[MAX_SAMPLE_WIDTH-1+22:22];
 		end
 	end
 
@@ -474,6 +592,7 @@ module adc_driver #(
 	// Advantages:  - increased sampling time
 	//				- clock domain crossing
 	//				- adjustable sampling frequency and sample width during runtime
+	// Optional TODOs: - shutdown for power saving
 
 
 	reg [MAX_SAMPLE_WIDTH-1:0] sample_in = 0;
@@ -492,17 +611,18 @@ module adc_driver #(
 	wire outfifo_empty; 
 	wire outfifo_full;
 	wire outfifo_vld = ~outfifo_empty;
-	wire outfifo_rdy = ~outfifo_full & ~bram_reset & ~bram_rd_rst_busy;
+	wire outfifo_rdy = ~outfifo_full & ~reset_w_extd_adc & ~bram_rd_rst_busy;
 
 	reg send_sample_stream = 0;
 
-	
+	// Collect 'width'-sized samples until FIFO_WIDTH is reached and
+	// forward the data to the BRAM.
 	fifo_aggregate #(
 		.MAX_INPUT_WIDTH    ( MAX_SAMPLE_WIDTH  ),
 		.OUTPUT_WIDTH_BYTES ( FIFO_WIDTH_BYTES  ))
 	u_infifo (
 		.clk               	( clk_adc         	),
-		.rst               	( reset_w_stretched ),
+		.rst               	( reset_w_extd_adc 	),
 		.input_width       	( width_adc			),
 		.wr_en             	( sample_in_vld     ),
 		.data_in           	( sample_in    		),
@@ -511,9 +631,8 @@ module adc_driver #(
 	);
 
 
-	// xpm_fifo_async: Asynchronous FIFO
-	// Xilinx Parameterized Macro, version 2020.2
-	xpm_fifo_async #(
+	// Store collected samples in BRAM.
+	xpm_fifo_async #( // version 2020.2
 		.CDC_SYNC_STAGES		(2),       		// DECIMAL
 		.DOUT_RESET_VALUE		("0"),    		// String
 		.ECC_MODE				("no_ecc"),		// String
@@ -555,18 +674,19 @@ module adc_driver #(
 		.injectsbiterr			(1'b0), 		// 1-bit input: Single Bit Error Injection: Injects a single bit error if  the ECC feature is used on block RAMs or UltraRAM macros.
 		.rd_clk					(clk),          // 1-bit input: Read clock: Used for read operation. rd_clk must be a free  running clock.
 		.rd_en					(outfifo_rdy),  // 1-bit input: Read Enable: If the FIFO is not empty, asserting this  signal causes data (on dout) to be read from the FIFO. Must be held  active-low when rd_rst_busy is active high.
-		.rst					(bram_reset),   // 1-bit input: Reset: Must be synchronous to wr_clk. The clock(s) can be  unstable at the time of applying reset, but reset must be released only  after the clock(s) is/are stable.
+		.rst					(reset_w_extd_adc),   // 1-bit input: Reset: Must be synchronous to wr_clk. The clock(s) can be  unstable at the time of applying reset, but reset must be released only  after the clock(s) is/are stable.
 		.sleep					(1'b0),         // 1-bit input: Dynamic power saving: If sleep is High, the memory/fifo  block is in power saving mode.
 		.wr_clk					(clk_adc),      // 1-bit input: Write clock: Used for write operation. wr_clk must be a  free running clock.
 		.wr_en					(infifo_vld)    // 1-bit input: Write Enable: If the FIFO is not full, asserting this  signal causes data (on din) to be written to the FIFO. Must be held  active-low when rst or wr_rst_busy is active high.
 	);
 
+	// Pull collected samples and output as bytes for streaming as serial data.
 	fifo_x2byte #(
 		.INPUT_WIDTH_BYTES ( FIFO_WIDTH_BYTES	),
 		.FIFO_DEPTH_INPUT  ( 2 	                ))
 	u_outfifo (
 		.clk     		( clk                 	),
-		.rst     		( reset_w_stretched		),
+		.rst     		( reset_w_extd			),
 		.rd_en   		( send_sample_stream	),
 		.wr_en   		( bram_vld       		),
 		.data_in 		( bram_data    			),
@@ -574,6 +694,12 @@ module adc_driver #(
 		.full    		( outfifo_full         	),
 		.empty   		( outfifo_empty        	)
 	);
+
+	
+	//--------------------------------------SIMULATION--------------------------------------
+	//
+	// Simulation of a serial receiver and hence consumption of sent data (code changes may 
+	// be required) and adc samples (usage with sim_switch signal)
 
 	// // serial_tx simulation
 	// reg [4:0] simcounter = 0;
@@ -589,10 +715,12 @@ module adc_driver #(
 	// end
 	
 	// input simulation
-	reg signed [9:0] adc_in_sim = 0;
+	reg signed [MAX_SAMPLE_WIDTH-1:0] sim_adc_in = {MAX_SAMPLE_WIDTH{1'b0}};
 	always @(posedge clk_adc) begin
-		adc_in_sim <= adc_in_sim + 1;
-		if (adc_en) adc_in_sim <= trigger_threshold_adc;
+		if (force_single_adc || reset_w_extd_adc) 
+			sim_adc_in <= {MAX_SAMPLE_WIDTH{1'b0}};
+		else
+			sim_adc_in <= sim_adc_in + 1;
 	end
 
 

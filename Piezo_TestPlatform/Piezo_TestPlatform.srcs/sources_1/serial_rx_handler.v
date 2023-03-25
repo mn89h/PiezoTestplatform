@@ -147,10 +147,11 @@ module serial_rx_handler(
                          (cmd_buf == STRING_CMD_MAXSMP  ) ? COMMAND_MAXSMP  :
                          (cmd_buf == STRING_CMD_WIDTH   ) ? COMMAND_WIDTH   :
                          (cmd_buf == STRING_CMD_FREQ    ) ? COMMAND_FREQ    :
+                         (cmd_buf == STRING_CMD_SIM     ) ? COMMAND_SIM     :
                          (cmd_buf == STRING_CMD_FORCE   ) ? COMMAND_FORCE   :
                                                             COMMAND_NONE    ;
 
-    wire [12:0] rx_val_wire;
+    wire [15:0] rx_val_wire;
     assign rx_val_wire = val_buf[35:32] * 16'd10000 + val_buf[27:24] * 16'd1000 + val_buf[19:16] * 16'd100 + val_buf[11:8] * 16'd10 + val_buf_next[3:0];
 
     wire rx_fin_wire;
