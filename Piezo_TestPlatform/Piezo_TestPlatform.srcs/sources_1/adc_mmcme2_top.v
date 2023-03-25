@@ -100,21 +100,21 @@ reg				current_state;
 reg [7:0]		sstep_int ;
 reg				init_drp_state = 1;
 // These signals are used for the BUFG's necessary for the design.
-wire            clkin_bufgout;
-wire            clkfb_bufgout;
-wire            clkfb_bufgin;
-wire            clk4_bufgin;
-wire            clk4_bufgout;
+wire            clkin_buf;
+wire            clk_feedback_buf;
+wire            clk_feedback_unbuf;
+wire            clk_adc_unbuf;
+wire            clk_adc_buf;
 wire            LOCKED;
 //-------------------------------------------------------------------------------------------
-assign clkin_bufgout = CLKIN;
+assign clkin_buf = CLKIN;
 //
-BUFG BUFG_FB    (.O (clkfb_bufgout),    .I (clkfb_bufgin));
-BUFG BUFG_CLK4  (.O (clk4_bufgout),     .I (clk4_bufgin));
+BUFG BUFG_FB    (.I (clk_feedback_unbuf), .O (clk_feedback_buf));
+BUFG BUFG_CLK4  (.I (clk_adc_unbuf), .O (clk_adc_buf));
 //
 // // ODDR registers used to output clocks
-// ODDR ODDR_CLK4 (.Q(CLK_ADC), .C(clk4_bufgout), .CE(1'b1), .D1(1'b1), .D2(1'b0), .R(RST), .S(1'b0));
-assign CLK_ADC = clk4_bufgout;
+// ODDR ODDR_CLK4 (.Q(CLK_ADC), .C(clk_adc_buf), .CE(1'b1), .D1(1'b1), .D2(1'b0), .R(RST), .S(1'b0));
+assign CLK_ADC = clk_adc_buf;
 //
 // MMCM_ADV that reconfiguration will take place on
 //
@@ -178,7 +178,7 @@ MMCME2_ADV #(
    .COMPENSATION        ("ZHOLD"),
    .STARTUP_WAIT        ("FALSE")
 ) mmcme2_adc_inst (
-   .CLKFBOUT            (clkfb_bufgin),
+   .CLKFBOUT            (clk_feedback_unbuf),
    .CLKFBOUTB           (),
    .CLKFBSTOPPED        (),
    .CLKINSTOPPED        (),
@@ -190,7 +190,7 @@ MMCME2_ADV #(
    .CLKOUT2B            (),
    .CLKOUT3             (),
    .CLKOUT3B            (),
-   .CLKOUT4             (clk4_bufgin),
+   .CLKOUT4             (clk_adc_unbuf),
    .CLKOUT5             (),
    .CLKOUT6             (),
    .DO                  (dout),
@@ -201,8 +201,8 @@ MMCME2_ADV #(
    .DI                  (di),
    .DWE                 (dwe),
    .LOCKED              (LOCKED),
-   .CLKFBIN             (clkfb_bufgout),
-   .CLKIN1              (clkin_bufgout),
+   .CLKFBIN             (clk_feedback_buf),
+   .CLKIN1              (clkin_buf),
    .CLKIN2              (),
    .CLKINSEL            (1'b1),
    .PSDONE              (),
@@ -237,10 +237,10 @@ adc_mmcme2_drp #(
     .SEN                (sstep_int[0]),
     .RST                (RST),
     .SRDY               (SRDY),
-    .SCLK               (clkin_bufgout),
+    .SCLK               (clkin_buf),
     .DO                 (dout),
     .DRDY               (drdy),
-    .LOCK_REG_CLK_IN    (clkin_bufgout),
+    .LOCK_REG_CLK_IN    (clkin_buf),
     .LOCKED_IN          (LOCKED),
     .DWE                (dwe),
     .DEN                (den),
@@ -258,7 +258,7 @@ adc_mmcme2_drp #(
 // buttons that may not adhere to the single clock requirement.
 //
 // Only start DRP after initial lock and when STATE has changed
-always @ (posedge clkin_bufgout)
+always @ (posedge clkin_buf)
     if (SSTEP) sstep_int <=  8'h80;
     else sstep_int <= {1'b0, sstep_int[7:1]};
 //
