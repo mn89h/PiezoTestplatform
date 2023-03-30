@@ -124,14 +124,17 @@ module adc_driver #(
 
 	localparam SZ_BUF 		= 536;
 
-	localparam TX_IDLE		= 3'b000;
-	localparam TX_HEAD1		= 3'b001;
-	localparam TX_HEAD2		= 3'b010;
-	localparam TX_STREAM	= 3'b011;
-	localparam TX_TAIL1		= 3'b100;
-	localparam TX_TAIL2		= 3'b101;
-	localparam TX_TAIL3		= 3'b110;
-	localparam TX_SEND 		= 3'b111;
+	localparam TX_IDLE		= 4'd0;
+	localparam TX_HEAD1		= 4'd1;
+	localparam TX_HEAD2		= 4'd2;
+	localparam TX_HEAD3		= 4'd3;
+	localparam TX_HEAD4		= 4'd4;
+	localparam TX_HEAD5		= 4'd5;
+	localparam TX_STREAM	= 4'd6;
+	localparam TX_TAIL1		= 4'd7;
+	localparam TX_TAIL2		= 4'd8;
+	localparam TX_TAIL3		= 4'd9;
+	localparam TX_SEND 		= 4'd10;
 
 	// local variables for text output string concat
 	localparam ASCII_TXT_POWER	= 56'h504F5745523A20;	// "POWER: "
@@ -142,7 +145,7 @@ module adc_driver #(
 	localparam ASCII_TXT_FREQ 	= 48'h465245513A20; 	// "FREQ: "
 	localparam ASCII_LF        	= 8'h0A;	 			// "\n"
 
-	reg [2:0] 		 state_tx 	  = TX_IDLE;
+	reg [3:0] 		 state_tx 	  = TX_IDLE;
 	reg [SZ_BUF-1:0] write_buffer = 0;
 	reg [6:0]		 tx_count	  = 0;
 	reg 			 tx_start  	  = 0;
@@ -349,6 +352,30 @@ module adc_driver #(
 			TX_HEAD2: begin
 				tx_valid			<= #1 1'b1;
 				tx_data				<= #1 8'b01111111;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_HEAD3;
+				end
+			end
+			// Pass source (ADC)
+			TX_HEAD3: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 8'h41; // "A"
+				if (tx_ready) begin
+					state_tx		<= #1 TX_HEAD4;
+				end
+			end
+			// Pass freq_state
+			TX_HEAD4: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 freq_state;
+				if (tx_ready) begin
+					state_tx		<= #1 TX_HEAD5;
+				end
+			end
+			// Pass width
+			TX_HEAD5: begin
+				tx_valid			<= #1 1'b1;
+				tx_data				<= #1 width;
 				if (tx_ready) begin
 					state_tx		<= #1 TX_STREAM;
 				end

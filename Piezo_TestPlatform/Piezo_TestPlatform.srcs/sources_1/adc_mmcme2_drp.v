@@ -349,7 +349,7 @@ module adc_mmcme2_drp #(
 			RESTART: begin
 				next_daddr    = 7'h00;
 				next_di       = 16'h0000;
-				next_rom_addr = 6'h00;
+				next_rom_addr = 9'h000;
 				next_rst_mmcm = 1'b1;
 				next_state    = WAIT_LOCK;
 			end

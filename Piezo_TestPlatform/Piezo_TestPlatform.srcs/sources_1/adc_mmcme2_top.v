@@ -232,7 +232,7 @@ adc_mmcme2_drp #(
     // |       "Reg"     |     "Yes"      | LOCKED is registered and the registered    |
     // |                 |                | version is also used by the state machine. |
     //
-) mmcme2_drp_inst (
+) adc_mmcme2_drp_inst (
     .SADDR              (STATE),
     .SEN                (sstep_int[0]),
     .RST                (RST),
