@@ -71,12 +71,19 @@ parameter DEFAULT_BRL       = 16'd200       ;   parameter DEFAULT_BRL_ASCII   = 
 
 
 // adc_driver Parameters
-parameter DEFAULT_POWER     = 1'b1          ;   parameter DEFAULT_POWER_ASCII   = 8'h31         ;
-parameter DEFAULT_TRIG      = 1'b0          ;   parameter DEFAULT_TRIG_ASCII    = 8'h30         ;
-parameter DEFAULT_THOLD     = 8'd64         ;   parameter DEFAULT_THOLD_ASCII   = 24'h3634      ;
-parameter DEFAULT_MAXSMP    = 16'd40000     ;   parameter DEFAULT_MAXSMP_ASCII  = 40'h3430303030;
-parameter DEFAULT_WIDTH	    = 4'd5          ;   parameter DEFAULT_WIDTH_ASCII  	= 16'h35        ;
-parameter DEFAULT_FREQ      = 14'd5000      ;   parameter DEFAULT_FREQ_ASCII	= 40'h35303030  ; // 250..10000 [kHz] in 250 [kHz] steps
+parameter ADC_DEFAULT_POWER     = 1'b1          ;   parameter ADC_DEFAULT_POWER_ASCII   = 8'h31         ;
+parameter ADC_DEFAULT_TRIG      = 1'b0          ;   parameter ADC_DEFAULT_TRIG_ASCII    = 8'h30         ;
+parameter ADC_DEFAULT_THOLD     = 8'd64         ;   parameter ADC_DEFAULT_THOLD_ASCII   = 24'h3634      ;
+parameter ADC_DEFAULT_MAXSMP    = 16'd40000     ;   parameter ADC_DEFAULT_MAXSMP_ASCII  = 40'h3430303030;
+parameter ADC_DEFAULT_WIDTH	    = 4'd5          ;   parameter ADC_DEFAULT_WIDTH_ASCII  	= 16'h35        ;
+parameter ADC_DEFAULT_FREQ      = 14'd5000      ;   parameter ADC_DEFAULT_FREQ_ASCII	= 40'h35303030  ; // 250..10000 [kHz] in 250 [kHz] steps
+
+
+// comp_driver Parameters
+parameter COMP_DEFAULT_POWER     = 1'b1          ;   parameter COMP_DEFAULT_POWER_ASCII  = 8'h31         ;
+parameter COMP_DEFAULT_MAXSMP    = 16'd1000      ;   parameter COMP_DEFAULT_MAXSMP_ASCII = 40'h31303030  ;
+parameter COMP_DEFAULT_WIDTH	 = 4'd10         ;   parameter COMP_DEFAULT_WIDTH_ASCII  = 16'h3130      ;
+parameter COMP_DEFAULT_FREQ      = 14'd200       ;   parameter COMP_DEFAULT_FREQ_ASCII	= 40'h323030    ; // 25, 50, 100, 200, 300, 400 [MHz]
 
 
 // ------------------------------------------------WIRES-------------------------------------------------
@@ -101,6 +108,8 @@ wire [7:0]  vga_data;
 
 // comparator_driver
 wire comp_data_ready;
+wire comp_data_valid;
+wire [7:0]  comp_data;
 
 // adc_driver
 wire adc_data_ready;
@@ -121,6 +130,7 @@ wire extsw2_down;
 wire extsw3_down;
 wire extsw4_down;
 
+wire  trigger_comp;
 
 // ----------------------------------------------ASSIGNMENTS---------------------------------------------
 
@@ -129,9 +139,7 @@ assign led2_pin = tx_busy;
 assign led3_pin = 0;
 assign led4_pin = 0;
 assign extled1_pin = comm_fin;
-assign extled2_pin = extsw1_down;
-
-assign comp_en_pin = 0; // 0=disable, 1=enable TODO: comp module
+assign extled2_pin = vga_en_pin;
 
 assign sysclk = sysclk_pin;
 
@@ -268,6 +276,7 @@ comm_protocol #(
 vga_driver  u_vga_driver (
     .clk                     ( sysclk         ),
 
+    .power_signal            ( extsw2_down    ),
     .gain_inc_signal         ( extsw4_down    ),
     .gain_dec_signal         ( extsw3_down    ),
 
@@ -289,17 +298,19 @@ vga_driver  u_vga_driver (
     .led3                    ( extled6_pin    )
 );
 
-wire  trigger_out; // TODO: to comp module
-
 adc_driver #(
-   .DEFAULT_POWER        ( DEFAULT_POWER           ),
-   .DEFAULT_POWER_ASCII  ( DEFAULT_POWER_ASCII     ),
-   .DEFAULT_TRIG         ( DEFAULT_TRIG            ),
-   .DEFAULT_TRIG_ASCII   ( DEFAULT_TRIG_ASCII      ),
-   .DEFAULT_THOLD        ( DEFAULT_THOLD           ),
-   .DEFAULT_THOLD_ASCII  ( DEFAULT_THOLD_ASCII     ),
-   .DEFAULT_MAXSMP       ( DEFAULT_MAXSMP          ),
-   .DEFAULT_MAXSMP_ASCII ( DEFAULT_MAXSMP_ASCII    ))
+   .DEFAULT_POWER        ( ADC_DEFAULT_POWER           ),
+   .DEFAULT_POWER_ASCII  ( ADC_DEFAULT_POWER_ASCII     ),
+   .DEFAULT_TRIG         ( ADC_DEFAULT_TRIG            ),
+   .DEFAULT_TRIG_ASCII   ( ADC_DEFAULT_TRIG_ASCII      ),
+   .DEFAULT_THOLD        ( ADC_DEFAULT_THOLD           ),
+   .DEFAULT_THOLD_ASCII  ( ADC_DEFAULT_THOLD_ASCII     ),
+   .DEFAULT_MAXSMP       ( ADC_DEFAULT_MAXSMP          ),
+   .DEFAULT_MAXSMP_ASCII ( ADC_DEFAULT_MAXSMP_ASCII    ),
+   .DEFAULT_WIDTH        ( ADC_DEFAULT_WIDTH           ),
+   .DEFAULT_WIDTH_ASCII  ( ADC_DEFAULT_WIDTH_ASCII     ),
+   .DEFAULT_FREQ         ( ADC_DEFAULT_FREQ            ),
+   .DEFAULT_FREQ_ASCII   ( ADC_DEFAULT_FREQ_ASCII      ))
 u_adc_driver (
    .clk                          ( sysclk                        ),
    .clk_adc                      ( adc_clk_pin                   ),
@@ -312,6 +323,31 @@ u_adc_driver (
    .tx_valid                     ( adc_data_valid                ),
    .tx_data                      ( adc_data                      ),
    .adc_en                       ( adc_en_pin                    ),
-   .trigger_out                  (                               )
+   .trigger_out                  ( trigger_comp                  )
 );
+
+comparator_driver #(
+   .DEFAULT_POWER        ( COMP_DEFAULT_POWER           ),
+   .DEFAULT_POWER_ASCII  ( COMP_DEFAULT_POWER_ASCII     ),
+   .DEFAULT_MAXSMP       ( COMP_DEFAULT_MAXSMP          ),
+   .DEFAULT_MAXSMP_ASCII ( COMP_DEFAULT_MAXSMP_ASCII    ),
+   .DEFAULT_WIDTH        ( COMP_DEFAULT_WIDTH           ),
+   .DEFAULT_WIDTH_ASCII  ( COMP_DEFAULT_WIDTH_ASCII     ),
+   .DEFAULT_FREQ         ( COMP_DEFAULT_FREQ            ),
+   .DEFAULT_FREQ_ASCII   ( COMP_DEFAULT_FREQ_ASCII      ))
+u_comp_driver (
+   .clk                          ( sysclk                        ),
+   .comp_in                      ( comp_in_pin                   ),
+   .rx_dst                       ( rx_dst                        ),
+   .rx_cmd                       ( rx_cmd                        ),
+   .rx_val                       ( rx_val                        ),
+   .rx_fin                       ( rx_fin                        ),
+   .tx_ready                     ( comp_data_ready               ),
+   .tx_valid                     ( comp_data_valid               ),
+   .tx_data                      ( comp_data                     ),
+   .comp_en                      ( comp_en_pin                   ),
+   .trigger_in                   ( trigger_comp                  )
+);
+
+
 endmodule
