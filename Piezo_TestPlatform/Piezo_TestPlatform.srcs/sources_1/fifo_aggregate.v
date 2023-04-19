@@ -71,5 +71,8 @@ module fifo_aggregate #(
             memory <= current_memory;
             overflow <= current_overflow;
         end
+        else begin
+            full <= 1'b0;
+        end
     end
 endmodule
