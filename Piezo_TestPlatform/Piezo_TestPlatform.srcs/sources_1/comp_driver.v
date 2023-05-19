@@ -22,6 +22,7 @@
 
 module comparator_driver #(
 	parameter DEFAULT_POWER  = 1'b0, 		parameter DEFAULT_POWER_ASCII	= 8'h30, 
+	parameter DEFAULT_TRIG   = 1'b0, 		parameter DEFAULT_TRIG_ASCII 	= 8'h30, 
 	parameter DEFAULT_MAXSMP = 16'd40000, 	parameter DEFAULT_MAXSMP_ASCII  = 40'h3430303030,
 	parameter DEFAULT_WIDTH	 = 4'd5, 		parameter DEFAULT_WIDTH_ASCII  	= 16'h35,
 	parameter DEFAULT_FREQ   = 14'd100, 	parameter DEFAULT_FREQ_ASCII	= 32'h313030		// 25, 50, 100, 200, 300, 400 MHz
@@ -126,6 +127,7 @@ module comparator_driver #(
 
 	// local variables for text output string concat
 	localparam ASCII_TXT_POWER	= 56'h504F5745523A20;	// "POWER: "
+	localparam ASCII_TXT_TRIG  	= 48'h545249473A20;		// "TRIG: "
 	localparam ASCII_TXT_MAXSMP = 64'h4D4158534D503A20; // "MAXSMP: "
 	localparam ASCII_TXT_WIDTH 	= 56'h57494454483A20; 	// "WIDTH: "
 	localparam ASCII_TXT_FREQ 	= 48'h465245513A20; 	// "FREQ: "
@@ -136,6 +138,7 @@ module comparator_driver #(
 	reg [6:0]		 tx_count	  = 0;
 	reg 			 tx_start  	  = 0;
 
+	reg trigger 			= DEFAULT_TRIG;
 	reg [15:0] max_samples 	= DEFAULT_MAXSMP;
 	reg [3:0]  width		= DEFAULT_WIDTH;
 	reg sim_switch			= 1'b0;				// signal to use simulated data instead of real input
@@ -147,6 +150,7 @@ module comparator_driver #(
 
 	// registers for values output string concat
 	reg [7:0] ascii_val_power		= DEFAULT_POWER_ASCII;
+	reg [7:0] ascii_val_trig		= DEFAULT_TRIG_ASCII;
 	reg [39:0] ascii_val_maxsmp		= DEFAULT_MAXSMP_ASCII;
 	reg [15:0] ascii_val_width		= DEFAULT_WIDTH_ASCII;
 	reg [31:0] ascii_val_freq		= DEFAULT_FREQ_ASCII;
@@ -161,6 +165,13 @@ module comparator_driver #(
 		force_single			<= 1'b0;
 		if (config_rcv)
 			config_rdy			<= 1'b0;
+
+		if (triggered) begin
+			trigger 		<= 0;
+			config_rdy 		<= 1'b1;
+			ascii_val_trig 	<= 8'h30;
+		end
+
 		tx_start				<= 1'b0;
 		reset 					<= 1'b0;
 		freq_update				<= 1'b0; // freq_update should only pulse for one cycle
@@ -187,12 +198,13 @@ module comparator_driver #(
 				// COMP:STATUS [<any number>]: return status message.
 				COMMAND_STATUS: begin
 					write_buffer <= {ASCII_TXT_POWER	, ascii_val_power	, ASCII_LF,
+									 ASCII_TXT_TRIG		, ascii_val_trig	, ASCII_LF, 
 									 ASCII_TXT_MAXSMP	, ascii_val_maxsmp	, ASCII_LF,
 									 ASCII_TXT_WIDTH	, ascii_val_width	, ASCII_LF, 
 									 ASCII_TXT_FREQ		, ascii_val_freq	, ASCII_LF, 
-									 {SZ_BUF-352{1'b0}}};
+									 {SZ_BUF-416{1'b0}}};
 					tx_start <= 1;
-					tx_count <= 44;
+					tx_count <= 52;
 				end
 				// COMP:MAXSMP [0..65535]: set maximum amount of samples. '0' equals maximum samples (18'd262.143).
 				COMMAND_MAXSMP: begin
@@ -208,6 +220,20 @@ module comparator_driver #(
 					tx_count 		<= 14;
 					tx_start 		<= 1;
 				end
+				// COMP:TRIG [0/1]: enable triggering according to adc threshold.
+				COMMAND_TRIG: begin
+					recv_value		 = rx_val[0];
+					recv_value_ascii = bin2ascii10000(recv_value);
+
+					trigger 		<= recv_value;
+					config_rdy 		<= 1'b1;
+					ascii_val_trig 	<= recv_value_ascii;
+					
+					write_buffer	<= {ASCII_TXT_TRIG, recv_value_ascii, ASCII_LF,
+										{SZ_BUF-96{1'b0}}};
+					tx_count 		<= 12;
+					tx_start 		<= 1;
+				end
 				// COMP:FORCE [<any number>]: force immediate triggering.
 				COMMAND_FORCE: begin
 					force_single <= 1'b1;
@@ -217,7 +243,7 @@ module comparator_driver #(
 					tx_count 		<= 13;
 					tx_start 		<= 1;
 				end
-				// COMP:FREQ [400..25]: sets sampling frequency in MHz if input is valid. steps: 400, 300, 200, 100, 50, 25
+				// COMP:FREQ [25/50/100/200/300/400]: sets sampling frequency in MHz if input is valid.
 				COMMAND_FREQ: begin
 					recv_value		 = rx_val;
 					recv_value_ascii = 40'h494E56; // "INV"
@@ -317,7 +343,7 @@ module comparator_driver #(
 					state_tx		<= #1 TX_HEAD3;
 				end
 			end
-			// Pass source (ADC)
+			// Pass source (COMP)
 			TX_HEAD3: begin
 				tx_valid			<= #1 1'b1;
 				tx_data				<= #1 8'h43; // "C"
@@ -411,6 +437,7 @@ module comparator_driver #(
 
 	reg [15:0] max_samples_comp = DEFAULT_MAXSMP;
 	reg [3:0] width_comp 		= DEFAULT_WIDTH;
+	reg trigger_comp 			= DEFAULT_TRIG;
 	reg sim_switch_comp			= 1'b0;
 	wire force_single_comp;
 	
@@ -424,17 +451,18 @@ module comparator_driver #(
 	reg previous_comp = 0;
 	reg [14:0] cycle_counter = 0;
 
-	xpm_cdc_single #( // version 2020.2
-		.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
-		.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
-		.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
-		.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
-	) u_cdc_comp_in ( 
-		.dest_out	(comp_in_synced),	// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
-		.dest_clk	(clk_comp),			// 1-bit input: Clock signal for the destination clock domain. 
-		.src_clk	(),					// 1-bit input: optional; required when SRC_INPUT_REG = 1 
-		.src_in		(comp_in)			// 1-bit input: Input signal to be synchronized to dest_clk domain.
-	);
+	assign comp_in_synced = comp_in;
+	// xpm_cdc_single #( // version 2020.2
+	// 	.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
+	// 	.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
+	// 	.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
+	// 	.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
+	// ) u_cdc_comp_in ( 
+	// 	.dest_out	(comp_in_synced),	// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
+	// 	.dest_clk	(clk_comp),			// 1-bit input: Clock signal for the destination clock domain. 
+	// 	.src_clk	(),					// 1-bit input: optional; required when SRC_INPUT_REG = 1 
+	// 	.src_in		(comp_in)			// 1-bit input: Input signal to be synchronized to dest_clk domain.
+	// );
 
 	always@(posedge clk_comp) begin
 		sample_in_vld	<= 1'b0;
@@ -450,7 +478,7 @@ module comparator_driver #(
 			// 			  write samples to infifo and keep triggered until sample_count is reached or bram is full
 			SAMPLE_RUN: begin
 				if (force_single_comp || 
-					trigger_in_comp || 
+					trigger_in_comp && trigger_comp || 
 					triggered) begin
 						if (sample_count > 0 && !bram_full) begin
 							cycle_counter 	<= cycle_counter + 1;
@@ -496,8 +524,8 @@ module comparator_driver #(
 	// system clock domain.
 	
 	// config
-	localparam CONFIG_WIDTH = 16+4+1;
-	wire [CONFIG_WIDTH-1:0] config_w = {max_samples, width, sim_switch};
+	localparam CONFIG_WIDTH = 16+4+1+1;
+	wire [CONFIG_WIDTH-1:0] config_w = {max_samples, width, trigger, sim_switch};
 	wire [CONFIG_WIDTH-1:0] config_comp_w;
 	wire config_comp_vld;
 	wire config_rcv;
@@ -510,8 +538,8 @@ module comparator_driver #(
 		.SIM_ASSERT_CHK	(0),			// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
 		.SRC_SYNC_FF	(2),			// DECIMAL; range: 2-10 
 		.WIDTH			(CONFIG_WIDTH)	// DECIMAL; range: 1-1024
-	) u_cdc_trigger_threshold ( 
-		.dest_out	(config_comp_w),		// WIDTH-bit output: Input bus (src_in) synchronized to destination clock domain.  This output is registered. 
+	) u_cdc_config ( 
+		.dest_out	(config_comp_w),	// WIDTH-bit output: Input bus (src_in) synchronized to destination clock domain.  This output is registered. 
 		.dest_req	(config_comp_vld),	// 1-bit output: Assertion of this signal indicates that new dest_out data has been  received and is ready to be used or captured by the destination logic. When  DEST_EXT_HSK = 1, this signal will deassert once the source handshake  acknowledges that the destination clock domain has received the transferred data.  When DEST_EXT_HSK = 0, this signal asserts for one clock period when dest_out bus  is valid. This output is registered. 
 		.src_rcv	(config_rcv),		// 1-bit output: Acknowledgement from destination logic that src_in has been  received. This signal will be deasserted once destination handshake has fully  completed, thus completing a full data transfer. This output is registered. 
 		.dest_ack	(),					// 1-bit input: optional; required when DEST_EXT_HSK = 1 
@@ -526,8 +554,9 @@ module comparator_driver #(
 		if (config_comp_vld) begin
 			config_comp_changed		<= 1'b1;
 			sim_switch_comp			<= config_comp_w[0];
-			width_comp				<= config_comp_w[4:1];
-			max_samples_comp		<= config_comp_w[20:5];
+			trigger_comp			<= config_comp_w[1];
+			width_comp				<= config_comp_w[5:2];
+			max_samples_comp		<= config_comp_w[21:6];
 		end
 	end
 
@@ -692,9 +721,11 @@ module comparator_driver #(
 	
 	// input simulation
 	localparam SIM_FLIP_COUNT = 127;
-	reg [14:0] sim_num_cycles_to_flip = SIM_FLIP_COUNT;	// number of cycles after which simulated input is flipped
+	reg [7:0] sim_cycle_counter = 0;
+	reg [7:0] sim_num_cycles_to_flip = SIM_FLIP_COUNT;	// number of cycles after which simulated input is flipped
 	reg sim_comp_in = 1'b0;								// simulated comparator signal
 	always @(posedge clk_comp) begin
+		sim_cycle_counter	<= sim_cycle_counter + 1;
 		// reset
 		if (force_single_comp || reset_w_comp) begin
 			sim_num_cycles_to_flip 	<= SIM_FLIP_COUNT;
@@ -702,9 +733,10 @@ module comparator_driver #(
 		end
 		// flip sim_comp_in and change sim_num_cycles_to_flip
 		else begin
-			if (cycle_counter == sim_num_cycles_to_flip) begin
+			if (sim_cycle_counter == sim_num_cycles_to_flip) begin
 				sim_comp_in 			<= ~sim_comp_in;
 				sim_num_cycles_to_flip	<= sim_num_cycles_to_flip + 2;
+				sim_cycle_counter		<= 1;
 			end
 		end
 	end

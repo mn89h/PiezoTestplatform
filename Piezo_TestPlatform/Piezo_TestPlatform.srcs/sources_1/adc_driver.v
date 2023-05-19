@@ -179,6 +179,13 @@ module adc_driver #(
 		force_single			<= 1'b0;
 		if (config_rcv)
 			config_rdy			<= 1'b0;
+
+		if (triggered) begin
+			trigger 		<= 0;
+			config_rdy 		<= 1'b1;
+			ascii_val_trig 	<= 8'h30;
+		end
+			
 		tx_start				<= 1'b0;
 		reset 					<= 1'b0;
 		freq_update				<= 1'b0; // freq_update should only pulse for one cycle, reset_w stretched fixed amount of cycles
@@ -519,7 +526,8 @@ module adc_driver #(
 	// Change if different behaviour is desired.
 
 	reg trigger_out_adc 	= 1'b0;
-	
+	assign trigger_out = trigger_out_adc; // no clock synchronization here
+
 	always @(posedge clk_adc) begin
 		if (adc_in >= trigger_threshold_adc)
 			trigger_out_adc <= 1;
@@ -549,7 +557,7 @@ module adc_driver #(
 		.SIM_ASSERT_CHK	(0),			// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
 		.SRC_SYNC_FF	(2),			// DECIMAL; range: 2-10 
 		.WIDTH			(CONFIG_WIDTH)	// DECIMAL; range: 1-1024
-	) u_cdc_trigger_threshold ( 
+	) u_cdc_config ( 
 		.dest_out	(config_adc_w),		// WIDTH-bit output: Input bus (src_in) synchronized to destination clock domain.  This output is registered. 
 		.dest_req	(config_adc_vld),	// 1-bit output: Assertion of this signal indicates that new dest_out data has been  received and is ready to be used or captured by the destination logic. When  DEST_EXT_HSK = 1, this signal will deassert once the source handshake  acknowledges that the destination clock domain has received the transferred data.  When DEST_EXT_HSK = 0, this signal asserts for one clock period when dest_out bus  is valid. This output is registered. 
 		.src_rcv	(config_rcv),		// 1-bit output: Acknowledgement from destination logic that src_in has been  received. This signal will be deasserted once destination handshake has fully  completed, thus completing a full data transfer. This output is registered. 
@@ -596,19 +604,6 @@ module adc_driver #(
 		.src_clk	(clk),      				// 1-bit input: Source clock. 
 		.src_pulse	(force_single_stretched),	// 1-bit input: Rising edge of this signal initiates a pulse transfer to the  destination clock domain. The minimum gap between each pulse transfer must be at the minimum 2*(larger(src_clk period, dest_clk period)). This is measured  between the falling edge of a src_pulse to the rising edge of the next  src_pulse.
 		.src_rst	()   						// 1-bit input: optional; required when RST_USED = 1
-	);
-
-	//trigger_out
-	xpm_cdc_single #( // version 2020.2
-		.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
-		.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
-		.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
-		.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
-	) u_cdc_trigger_out ( 
-		.dest_out	(trigger_out),		// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
-		.dest_clk	(clk),				// 1-bit input: Clock signal for the destination clock domain. 
-		.src_clk	(clk_adc),			// 1-bit input: optional; required when SRC_INPUT_REG = 1 
-		.src_in		(trigger_out_adc)	// 1-bit input: Input signal to be synchronized to dest_clk domain.
 	);
 
 	

@@ -141,6 +141,8 @@ module serial_rx_handler(
                          (cmd_buf == STRING_CMD_SET1L   ) ? COMMAND_SET1L   :
                          (cmd_buf == STRING_CMD_SETBRL  ) ? COMMAND_SETBRL  :
                          (cmd_buf == STRING_CMD_START   ) ? COMMAND_START   :
+                         (cmd_buf == STRING_CMD_TEST    ) ? COMMAND_TEST    :
+                         (cmd_buf == STRING_CMD_CLKDIV  ) ? COMMAND_CLKDIV  :
                          (cmd_buf == STRING_CMD_RESET   ) ? COMMAND_RESET   :
                          (cmd_buf == STRING_CMD_TRIG    ) ? COMMAND_TRIG    :
                          (cmd_buf == STRING_CMD_THOLD   ) ? COMMAND_THOLD   :
