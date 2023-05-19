@@ -121,7 +121,7 @@ while True:
     data_array = []
     while True:
         try:
-            lol = current_logdata.read('5')
+            lol = current_logdata.read(width)
             lol.reverse()
             data_array.append(lol.int)
         except:
