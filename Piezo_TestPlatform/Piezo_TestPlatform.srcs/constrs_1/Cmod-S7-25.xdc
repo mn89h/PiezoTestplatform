@@ -86,7 +86,6 @@ set_property -dict {PACKAGE_PIN A4 IOSTANDARD LVCMOS33} [get_ports {adc_in_pins[
 #set_property -dict { PACKAGE_PIN K13   IOSTANDARD LVCMOS33 } [get_ports { qspi_dq[3] }]; #IO_L2N_T0_D03_14 Sch=qspi_dq[3]
 
 
-set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
 set_property CONFIG_MODE SPIx4 [current_design]
 
@@ -106,7 +105,6 @@ set_input_delay -clock [get_clocks sys_clk_pin] -min -add_delay -0.500 [get_port
 set_input_delay -clock [get_clocks sys_clk_pin] -max -add_delay 0.000 [get_ports extsw4_pin]
 set_input_delay -clock [get_clocks sys_clk_pin] -min -add_delay -0.500 [get_ports uart_rx_pin]
 set_input_delay -clock [get_clocks sys_clk_pin] -max -add_delay 0.000 [get_ports uart_rx_pin]
-create_clock -period 10.000 -name VIRTUAL_clk_100_unbuf -waveform {0.000 5.000}
 set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_ports {vga_gain_pins[*]}]
 set_output_delay -clock [get_clocks sys_clk_pin] -max -add_delay 5.000 [get_ports {vga_gain_pins[*]}]
 set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_ports adc_en_pin]
@@ -127,11 +125,28 @@ set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_por
 set_output_delay -clock [get_clocks sys_clk_pin] -max -add_delay 5.000 [get_ports led1_pin]
 set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_ports led2_pin]
 set_output_delay -clock [get_clocks sys_clk_pin] -max -add_delay 5.000 [get_ports led2_pin]
-set_output_delay -clock [get_clocks VIRTUAL_clk_100_unbuf] -min -add_delay -5.000 [get_ports piezodrivera_hi_pin]
-set_output_delay -clock [get_clocks VIRTUAL_clk_100_unbuf] -max -add_delay 5.000 [get_ports piezodrivera_hi_pin]
-set_output_delay -clock [get_clocks VIRTUAL_clk_100_unbuf] -min -add_delay -5.000 [get_ports piezodriverb_lo_pin]
-set_output_delay -clock [get_clocks VIRTUAL_clk_100_unbuf] -max -add_delay 5.000 [get_ports piezodriverb_lo_pin]
+set_output_delay -clock [get_clocks VIRTUAL_clk_400_unbuf] -min -add_delay -5.000 [get_ports piezodrivera_hi_pin]
+set_output_delay -clock [get_clocks VIRTUAL_clk_400_unbuf] -max -add_delay 5.000 [get_ports piezodrivera_hi_pin]
+set_output_delay -clock [get_clocks VIRTUAL_clk_400_unbuf] -min -add_delay -5.000 [get_ports piezodriverb_lo_pin]
+set_output_delay -clock [get_clocks VIRTUAL_clk_400_unbuf] -max -add_delay 5.000 [get_ports piezodriverb_lo_pin]
 set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_ports uart_tx_pin]
 set_output_delay -clock [get_clocks sys_clk_pin] -max -add_delay 5.000 [get_ports uart_tx_pin]
 set_false_path -to [get_ports {extled1_pin extled2_pin extled3_pin extled4_pin extled5_pin extled6_pin led1_pin led2_pin led3_pin led4_pin}]
 set_false_path -from [get_ports {btn0_pin btn1_pin extsw1_pin extsw2_pin extsw3_pin extsw4_pin}]
+set_false_path -to [get_ports piezodriverb_lo_pin]
+set_false_path -to [get_ports piezodrivera_hi_pin]
+
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+
+create_clock -period 83.330 -name VIRTUAL_clk_comp_unbuf -waveform {0.000 41.665}
+set_input_delay -clock [get_clocks VIRTUAL_clk_comp_unbuf] -min -add_delay 2.000 [get_ports comp_in_pin]
+set_input_delay -clock [get_clocks VIRTUAL_clk_comp_unbuf] -max -add_delay 6.000 [get_ports comp_in_pin]
+#create_clock -period 2.604 -name VIRTUAL_clk_400_unbuf -waveform {0.000 1.302}
+#create_clock -period 3.333 -name VIRTUAL_clk_400_unbuf -waveform {0.000 1.667}
+create_clock -period 4.000 -name VIRTUAL_clk_400_unbuf -waveform {0.000 2.000}
+set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_ports comp_en_pin]
+set_output_delay -clock [get_clocks sys_clk_pin] -max -add_delay 5.000 [get_ports comp_en_pin]
+set_output_delay -clock [get_clocks sys_clk_pin] -min -add_delay -5.000 [get_ports vga_en_pin]
+set_output_delay -clock [get_clocks sys_clk_pin] -max -add_delay 5.000 [get_ports vga_en_pin]
+
