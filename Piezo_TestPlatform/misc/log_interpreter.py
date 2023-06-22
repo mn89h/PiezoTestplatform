@@ -55,18 +55,11 @@ while True:
     elif source_abbr == format(ord('C'), "x"):
         source = 'COMP'
         dumpfile = 'comp_data_{number:d}.txt'.format(number=i)
-        if   freq_state == 0:
-            freq = 400000000
-        elif freq_state == 1:
-            freq = 300000000
-        elif freq_state == 2:
-            freq = 200000000
-        elif freq_state == 3:
-            freq = 100000000
-        elif freq_state == 4:
-            freq = 50000000
-        elif freq_state == 5:
+        # placeholder if different sampling frequencies are needed
+        if freq_state == 5:
             freq = 25000000
+        elif freq_state != 0:
+            freq = 0
     else:
         print("Source not recognized, data may be corrupt")
         quit()

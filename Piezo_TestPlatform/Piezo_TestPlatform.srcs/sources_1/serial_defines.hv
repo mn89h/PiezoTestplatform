@@ -35,7 +35,7 @@
 // COMP:MAXSMP [0..65535]: set maximum amount of samples. '0' equals maximum samples (18'd262.143).
 // COMP:TRIG [0/1]: enable triggering according to adc threshold.
 // COMP:FORCE [<any number>]: force immediate triggering.
-// COMP:FREQ [25/50/100/200/300/400]: sets sampling frequency in MHz if input is valid.
+// COMP:FREQ [25/50/100/200/300/400]: sets sampling frequency in MHz if input is valid. CURRENTLY REMOVED.
 // COMP:WIDTH [0..12]: sets maximum counting width (ensure that the cycle count fits, otherwise overflows may occur)
 // COMP:RESET [<any number>]: resets signals (TODO) and applies reset (emptiing fifos)
 // COMP:SIM [0/1]: use simulation data instead of comp_in pins input
@@ -71,7 +71,7 @@ localparam COMMAND_THOLD            = 9;
 // COMMANDS: COMP
 // localparam COMMAND_POWER            = 2;
 // localparam COMMAND_WIDTH            = 3;
-// localparam COMMAND_FREQ             = 4;
+// localparam COMMAND_FREQ             = 4; // removed
 // localparam COMMAND_MAXSMP           = 5;
 // localparam COMMAND_FORCE            = 6;
 // localparam COMMAND_SIM              = 7;

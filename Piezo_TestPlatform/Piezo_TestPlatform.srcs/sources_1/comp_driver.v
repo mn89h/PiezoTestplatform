@@ -24,8 +24,8 @@ module comparator_driver #(
 	parameter DEFAULT_POWER  = 1'b0, 		parameter DEFAULT_POWER_ASCII	= 8'h30, 
 	parameter DEFAULT_TRIG   = 1'b0, 		parameter DEFAULT_TRIG_ASCII 	= 8'h30, 
 	parameter DEFAULT_MAXSMP = 16'd40000, 	parameter DEFAULT_MAXSMP_ASCII  = 40'h3430303030,
-	parameter DEFAULT_WIDTH	 = 4'd5, 		parameter DEFAULT_WIDTH_ASCII  	= 16'h35,
-	parameter DEFAULT_FREQ   = 14'd100, 	parameter DEFAULT_FREQ_ASCII	= 32'h313030		// 25, 50, 100, 200, 300, 400 MHz
+	parameter DEFAULT_WIDTH	 = 5'd20, 		parameter DEFAULT_WIDTH_ASCII  	= 16'h3230
+	// parameter DEFAULT_FREQ   = 14'd100, 	parameter DEFAULT_FREQ_ASCII	= 32'h313030		// 25, 50, 100, 200, 300, 400 MHz
 ) (
     input wire clk,
 
@@ -51,16 +51,18 @@ module comparator_driver #(
 );
 	`include "serial_defines.hv"
 
+	localparam DEFAULT_FREQ			=	100;
+	localparam DEFAULT_FREQ_ASCII	=	32'h313030;
 	localparam DEFAULT_FREQSTATE 	= 	DEFAULT_FREQ == 400 ? 0 :
 										DEFAULT_FREQ == 300 ? 1 :
 										DEFAULT_FREQ == 200 ? 2 :
 										DEFAULT_FREQ == 100 ? 3 :
 										DEFAULT_FREQ ==  50 ? 4 :
 										DEFAULT_FREQ ==  25 ? 5 :
-										0;						// freq_state for mmcme2_drp state machine
+										5;						// freq_state for mmcme2_drp state machine
 	localparam FIFO_WIDTH_BYTES 	= 6;						// width of a fifo word (change may require changing bram_fifo depth to meet fpga specs)
 	localparam FIFO_WIDTH 			= FIFO_WIDTH_BYTES * 8;				
-	localparam MAX_COUNT_WIDTH 		= 12;						
+	localparam MAX_COUNT_WIDTH 		= 22;						
 
 	integer ii;
 
@@ -74,7 +76,7 @@ module comparator_driver #(
 	//						  stretch pulse otherwise
 
 	reg  reset 		= 1'b1;
-	wire reset_w 	= freq_update | reset;
+	wire reset_w 	= reset; // || freq_update
 	wire reset_w_comp;
 
 	xpm_cdc_single #( // version 2020.2
@@ -91,21 +93,69 @@ module comparator_driver #(
 
 	//-------------------------------------CLK WIZARD-------------------------------------
 	// 
-	// Changes the frequency on freq_state and freq_update input. Keep freq_update high for
+	// Optional: Changes the frequency on freq_state and freq_update input. Keep freq_update high for
 	// only one cycle.
+	// To enable remove comments and comment out "CLK FIXED" section. Needs rewrite of the freq_states, 
+	// as the respective frequencies are too large (up to 400 MHz, can't meet timing)
 
 	reg [2:0]  freq_state 	= DEFAULT_FREQSTATE;
 
-	comp_clkgen  u_comp_clkgen (
-		.SSTEP                   ( freq_update  ),
-		.STATE                   ( freq_state   ),
-		.RST                     ( 1'b0         ),
-		.CLKIN                   ( clk          ),
+	// comp_clkgen  u_comp_clkgen (
+	// 	.SSTEP                   ( freq_update  ),
+	// 	.STATE                   ( freq_state   ),
+	// 	.RST                     ( 1'b0         ),
+	// 	.CLKIN                   ( clk          ),
 
-		.LOCKED_OUT              ( freq_locked  ),
-		.CLK_COMP                ( clk_comp     )
-	);
+	// 	.LOCKED_OUT              ( freq_locked  ),
+	// 	.CLK_COMP                ( clk_comp     )
+	// );
 	
+	//-------------------------------------CLK FIXED-------------------------------------
+	//
+	// Fixed sampling clock set to 25 MHz. 
+	// Increase in frequency may require larger cycle_counter reg and fifo_aggregate input_width in order
+	// to avoid cycle counting overflow.
+
+    wire            clkin_buf;
+    wire            clk_feedback_buf;
+    wire            clk_feedback_unbuf;
+    wire            clk_comp_unbuf;
+    wire            clk_comp_buf;
+	wire 			clk_comp;
+
+    assign clkin_buf = clk;
+    BUFG BUFG_FB    (.I (clk_feedback_unbuf), .O (clk_feedback_buf));
+    BUFG BUFG_CLK0  (.I (clk_comp_unbuf), .O (clk_comp_buf));
+    assign clk_comp = clk_comp_buf;
+
+    MMCME2_BASE #(   // Xilinx HDL Language Template, version 2021.2
+    .BANDWIDTH("OPTIMIZED"),        // OPTIMIZED, HIGH, LOW
+    .CLKFBOUT_MULT_F    (62.5),     // Multiply value for all CLKOUT (2.000-64.000).
+    .CLKFBOUT_PHASE     (0.0),      // Phase offset in degrees of CLKFB, (-360.000-360.000).
+    .CLKIN1_PERIOD      (83.333),   // Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
+    .CLKOUT0_DIVIDE_F   (30.000),
+    .CLKOUT0_DUTY_CYCLE (0.5),
+    .CLKOUT0_PHASE      (0.0),
+    .CLKOUT4_CASCADE	("FALSE"),      // Cascade CLKOUT4 counter with CLKOUT6 (FALSE, TRUE)
+    .DIVCLK_DIVIDE      (1),        // Master division value, (1-56)
+    .REF_JITTER1        (0.010),    // Reference input jitter in UI, (0.000-0.999).
+    .STARTUP_WAIT       ("FALSE")   // Delay DONE until PLL Locks, ("TRUE"/"FALSE")
+    ) mmcme2_comp_inst (
+    .CLKOUT0            (clk_comp_unbuf),        // 1-bit output: CLKOUT0
+    .CLKOUT1            (),                     // 1-bit output: CLKOUT1
+    .CLKOUT2            (),                     // 1-bit output: CLKOUT2
+    .CLKOUT3            (),                     // 1-bit output: CLKOUT3
+    .CLKOUT4            (),                     // 1-bit output: CLKOUT4
+    .CLKOUT5            (),                     // 1-bit output: CLKOUT5
+    .CLKOUT6            (),                     // 1-bit output: CLKOUT5
+    .CLKFBOUT           (clk_feedback_unbuf),   // 1-bit output: Feedback clock
+    .CLKFBOUTB          (),                     // 1-bit output: Inverted CLKFBOUT
+    .LOCKED             (),                     // 1-bit output: LOCK
+    .CLKIN1             (clkin_buf),            // 1-bit input: Input clock
+    .PWRDWN             (1'b0),                 // 1-bit input: Power-down
+    .RST                (1'b0),                 // 1-bit input: Reset
+    .CLKFBIN            (clk_feedback_buf)      // 1-bit input: Feedback clock
+    );
 
 	//-------------------------------------RX/TX HANDLING-------------------------------------
 	//
@@ -140,10 +190,10 @@ module comparator_driver #(
 
 	reg trigger 			= DEFAULT_TRIG;
 	reg [15:0] max_samples 	= DEFAULT_MAXSMP;
-	reg [3:0]  width		= DEFAULT_WIDTH;
+	reg [4:0]  width		= DEFAULT_WIDTH;
 	reg sim_switch			= 1'b0;				// signal to use simulated data instead of real input
 	reg force_single 		= 1'b0;				// pulse to force immediate trigger
-	reg freq_update 		= 1'b1;				// pulse to update frequency
+	// reg freq_update 		= 1'b1;				// pulse to update frequency
 	reg config_rdy			= 1'b0;				// pulse to transfer updated configuration to clk_comp domain
 	wire freq_locked; // unused
 	
@@ -166,7 +216,7 @@ module comparator_driver #(
 		if (config_rcv)
 			config_rdy			<= 1'b0;
 
-		if (triggered) begin
+		if (!bram_empty) begin // detect triggering on !bram_empty signal (same clock)
 			trigger 		<= 0;
 			config_rdy 		<= 1'b1;
 			ascii_val_trig 	<= 8'h30;
@@ -174,7 +224,7 @@ module comparator_driver #(
 
 		tx_start				<= 1'b0;
 		reset 					<= 1'b0;
-		freq_update				<= 1'b0; // freq_update should only pulse for one cycle
+		// freq_update				<= 1'b0; // freq_update should only pulse for one cycle
 		// // unset freq_update only after freq is locked for sufficient reset_w duration
 		// if (freq_locked == 1)
 		// 	freq_update			<= 1'b0;
@@ -244,39 +294,39 @@ module comparator_driver #(
 					tx_start 		<= 1;
 				end
 				// COMP:FREQ [25/50/100/200/300/400]: sets sampling frequency in MHz if input is valid.
-				COMMAND_FREQ: begin
-					recv_value		 = rx_val;
-					recv_value_ascii = 40'h494E56; // "INV"
+				// COMMAND_FREQ: begin
+				// 	recv_value		 = rx_val;
+				// 	recv_value_ascii = 40'h494E56; // "INV"
 
-					for (ii = 0; ii <= 3; ii = ii + 1) begin // logic for SSTATE 0 - 3 (~400, 300, 200, 100)
-						if (recv_value == (400 - ii * 100)) begin
-							recv_value_ascii	= bin2ascii10000(recv_value);
+				// 	for (ii = 0; ii <= 3; ii = ii + 1) begin // logic for SSTATE 0 - 3 (~400, 300, 200, 100)
+				// 		if (recv_value == (400 - ii * 100)) begin
+				// 			recv_value_ascii	= bin2ascii10000(recv_value);
 
-							freq_state			<= ii;
-							freq_update			<= 1'b1;
-							ascii_val_freq		<= recv_value_ascii;
-						end
-					end
-					for (ii = 0; ii <= 1; ii = ii + 1) begin // logic for SSTATE 4 - 5 (50, 25)
-						if (recv_value == (25 + ii * 25)) begin
-							recv_value_ascii	= bin2ascii10000(recv_value);
+				// 			freq_state			<= ii;
+				// 			freq_update			<= 1'b1;
+				// 			ascii_val_freq		<= recv_value_ascii;
+				// 		end
+				// 	end
+				// 	for (ii = 0; ii <= 1; ii = ii + 1) begin // logic for SSTATE 4 - 5 (50, 25)
+				// 		if (recv_value == (25 + ii * 25)) begin
+				// 			recv_value_ascii	= bin2ascii10000(recv_value);
 
-							freq_state			<= ii + 4;
-							freq_update			<= 1'b1;
-							ascii_val_freq		<= recv_value_ascii;
-						end
-					end
+				// 			freq_state			<= ii + 4;
+				// 			freq_update			<= 1'b1;
+				// 			ascii_val_freq		<= recv_value_ascii;
+				// 		end
+				// 	end
 
-					write_buffer	<= {ASCII_TXT_FREQ, recv_value_ascii, ASCII_LF,
-										{SZ_BUF-96{1'b0}}};
-					tx_count 		<= 12;
-					tx_start 		<= 1;
-				end
+				// 	write_buffer	<= {ASCII_TXT_FREQ, recv_value_ascii, ASCII_LF,
+				// 						{SZ_BUF-96{1'b0}}};
+				// 	tx_count 		<= 12;
+				// 	tx_start 		<= 1;
+				// end
 				// COMP:WIDTH [0..12]: sets maximum counting width (ensure that the cycle count fits, otherwise overflows may occur)
 				COMMAND_WIDTH: begin
-					recv_value		 = rx_val[3:0];
-					if (recv_value > 4'd12)
-						recv_value	 = 4'd12;
+					recv_value		 = rx_val[4:0];
+					if (recv_value > 5'd22)
+						recv_value	 = 5'd22;
 					recv_value_ascii = bin2ascii10000(recv_value);
 
 					width 				<= recv_value;
@@ -436,37 +486,36 @@ module comparator_driver #(
 	//		otherwise				 : sample_count = max_samples_comp (<16'd65.535)
 
 	reg [15:0] max_samples_comp = DEFAULT_MAXSMP;
-	reg [3:0] width_comp 		= DEFAULT_WIDTH;
+	reg [4:0] width_comp 		= DEFAULT_WIDTH;
 	reg trigger_comp 			= DEFAULT_TRIG;
 	reg sim_switch_comp			= 1'b0;
 	wire force_single_comp;
 	
-	reg triggered			= 1'b0;
 	reg [17:0] sample_count = 18'b0;
 	
-	localparam SAMPLE_RUN 	= 2'b01;
-	localparam SAMPLE_RST 	= 2'b10;
-	reg [1:0] state_sample 	= SAMPLE_RUN;
+	localparam SAMPLE_WAIT 	= 3'b001;
+	localparam SAMPLE_RUN 	= 3'b010;
+	localparam SAMPLE_RST 	= 3'b100;
+	reg [2:0] state_sample 	= SAMPLE_WAIT;
 
 	reg previous_comp = 0;
-	reg [14:0] cycle_counter = 0;
+	reg [21:0] cycle_counter = 0;
 
-	assign comp_in_synced = comp_in;
-	// xpm_cdc_single #( // version 2020.2
-	// 	.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
-	// 	.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
-	// 	.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
-	// 	.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
-	// ) u_cdc_comp_in ( 
-	// 	.dest_out	(comp_in_synced),	// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
-	// 	.dest_clk	(clk_comp),			// 1-bit input: Clock signal for the destination clock domain. 
-	// 	.src_clk	(),					// 1-bit input: optional; required when SRC_INPUT_REG = 1 
-	// 	.src_in		(comp_in)			// 1-bit input: Input signal to be synchronized to dest_clk domain.
-	// );
+	// assign comp_in_synced = comp_in;
+	xpm_cdc_single #( // version 2020.2
+		.DEST_SYNC_FF	(2),	// DECIMAL; range: 2-10 
+		.INIT_SYNC_FF	(0),	// DECIMAL; 0=disable simulation init values, 1=enable simulation init values 
+		.SIM_ASSERT_CHK	(0),	// DECIMAL; 0=disable simulation messages, 1=enable simulation messages 
+		.SRC_INPUT_REG	(0)		// DECIMAL; 0=do not register input, 1=register input
+	) u_cdc_comp_in ( 
+		.dest_out	(comp_in_synced),	// 1-bit output: src_in synchronized to the destination clock domain. This output is registered. 
+		.dest_clk	(clk_comp),			// 1-bit input: Clock signal for the destination clock domain. 
+		.src_clk	(),					// 1-bit input: optional; required when SRC_INPUT_REG = 1 
+		.src_in		(comp_in)			// 1-bit input: Input signal to be synchronized to dest_clk domain.
+	);
 
 	always@(posedge clk_comp) begin
 		sample_in_vld	<= 1'b0;
-		triggered 		<= 1'b0;
 
 		if (sim_switch_comp)
 			previous_comp	<= sim_comp_in;
@@ -474,35 +523,33 @@ module comparator_driver #(
 			previous_comp	<= comp_in_synced;
 		
 		case (state_sample)
-			// Run state: trigger on force signal or when threshold is exceeded
-			// 			  write samples to infifo and keep triggered until sample_count is reached or bram is full
-			SAMPLE_RUN: begin
+			// Wait state: trigger on force signal or when threshold is exceeded
+			SAMPLE_WAIT: begin
 				if (force_single_comp || 
-					trigger_in_comp && trigger_comp || 
-					triggered) begin
-						if (sample_count > 0 && !bram_full) begin
-							cycle_counter 	<= cycle_counter + 1;
-							if (sim_switch_comp && (sim_comp_in != previous_comp) ||
-								!sim_switch_comp && (comp_in_synced != previous_comp)) begin
-									sample_in		<= cycle_counter + 1;
-									sample_in_vld	<= 1'b1;
-									cycle_counter 	<= 1;
-									sample_count	<= sample_count - 1;
-							end
-							triggered 		<= 1'b1;
-						end
-						else begin
-							triggered 		<= 1'b0;
-							sample_count	<= 1'b0;
-							state_sample	<= SAMPLE_RST;
-						end
+					trigger_in_comp && trigger_comp) begin
+						cycle_counter	<= 1;
+						state_sample	<= SAMPLE_RUN;
+				end
+			end
+			// Run state: write samples to infifo and keep triggered until sample_count is reached or bram is full
+			SAMPLE_RUN: begin
+				cycle_counter 	<= cycle_counter + 1;
+				if (sim_switch_comp && (sim_comp_in != previous_comp) ||
+					!sim_switch_comp && (comp_in_synced != previous_comp)) begin
+						sample_in		<= cycle_counter;
+						sample_in_vld	<= 1'b1;
+						cycle_counter 	<= 1;
+						sample_count	<= sample_count - 1;
+				end
+				if (sample_count == 0 || bram_full) begin
+					state_sample	<= SAMPLE_RST;
 				end
 			end
 			// Reset state: wait for applied reset in clk_comp domain (e.g. triggered in state_tx == TAIL_3)
 			// 				optional TODO: for increased robustness deny sampling in case of reset in SAMPLE_RUN state
 			SAMPLE_RST: begin
 				if (reset_w_comp) begin
-					state_sample	<= SAMPLE_RUN;
+					state_sample	<= SAMPLE_WAIT;
 				end
 			end
 		endcase
@@ -524,7 +571,7 @@ module comparator_driver #(
 	// system clock domain.
 	
 	// config
-	localparam CONFIG_WIDTH = 16+4+1+1;
+	localparam CONFIG_WIDTH = 16+5+1+1;
 	wire [CONFIG_WIDTH-1:0] config_w = {max_samples, width, trigger, sim_switch};
 	wire [CONFIG_WIDTH-1:0] config_comp_w;
 	wire config_comp_vld;
@@ -555,8 +602,8 @@ module comparator_driver #(
 			config_comp_changed		<= 1'b1;
 			sim_switch_comp			<= config_comp_w[0];
 			trigger_comp			<= config_comp_w[1];
-			width_comp				<= config_comp_w[5:2];
-			max_samples_comp		<= config_comp_w[21:6];
+			width_comp				<= config_comp_w[6:2];
+			max_samples_comp		<= config_comp_w[22:7];
 		end
 	end
 

@@ -7,7 +7,7 @@ module fifo_aggregate #(
 ) (
     input wire                              clk,
     input wire                              rst,
-    input wire [3:0]                        input_width, // max 15 bit input width
+    input wire [4:0]                        input_width, // max 31 bit input width
     input wire                              wr_en,
     input wire  [MAX_INPUT_WIDTH-1:0]       data_in,
     output wire [OUTPUT_WIDTH_BYTES*8-1:0]  data_out,
@@ -24,9 +24,9 @@ module fifo_aggregate #(
 
     reg [OVFLW_MSB:0] current_memory;
     reg [OVFLW_MSB:0] memory = {OUTPUT_WIDTH{1'b0}};
-    reg [3:0] overflow = 0;
-    reg [4:0] current_shift_amount = 0;
-    reg [3:0] current_overflow = 0;
+    reg [4:0] overflow = 0;
+    reg [5:0] current_shift_amount = 0;
+    reg [4:0] current_overflow = 0;
     reg [COUNTER_MSB:0] counter = 0;
     
     integer ii;

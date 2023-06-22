@@ -89,7 +89,7 @@ parameter ADC_DEFAULT_FREQ      = 14'd5000      ;   parameter ADC_DEFAULT_FREQ_A
 parameter COMP_DEFAULT_POWER     = 1'b1          ;   parameter COMP_DEFAULT_POWER_ASCII  = 8'h31         ;
 parameter COMP_DEFAULT_TRIG      = 1'b0          ;   parameter COMP_DEFAULT_TRIG_ASCII    = 8'h30        ;
 parameter COMP_DEFAULT_MAXSMP    = 16'd1000      ;   parameter COMP_DEFAULT_MAXSMP_ASCII = 40'h31303030  ;
-parameter COMP_DEFAULT_WIDTH	   = 4'd10         ;   parameter COMP_DEFAULT_WIDTH_ASCII  = 16'h3130      ;
+parameter COMP_DEFAULT_WIDTH	   = 5'd20         ;   parameter COMP_DEFAULT_WIDTH_ASCII  = 16'h3230      ;
 parameter COMP_DEFAULT_FREQ      = 14'd200       ;   parameter COMP_DEFAULT_FREQ_ASCII	  = 40'h323030    ; // 25, 50, 100, 200, 300, 400 [MHz]
 
 
@@ -301,9 +301,7 @@ comparator_driver #(
    .DEFAULT_MAXSMP       ( COMP_DEFAULT_MAXSMP          ),
    .DEFAULT_MAXSMP_ASCII ( COMP_DEFAULT_MAXSMP_ASCII    ),
    .DEFAULT_WIDTH        ( COMP_DEFAULT_WIDTH           ),
-   .DEFAULT_WIDTH_ASCII  ( COMP_DEFAULT_WIDTH_ASCII     ),
-   .DEFAULT_FREQ         ( COMP_DEFAULT_FREQ            ),
-   .DEFAULT_FREQ_ASCII   ( COMP_DEFAULT_FREQ_ASCII      ))
+   .DEFAULT_WIDTH_ASCII  ( COMP_DEFAULT_WIDTH_ASCII     ))
 u_comp_driver (
    .clk                          ( sysclk                        ),
    .comp_in                      ( comp_in_pin                   ),
