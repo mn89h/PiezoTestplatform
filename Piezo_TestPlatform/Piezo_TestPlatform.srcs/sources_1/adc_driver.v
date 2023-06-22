@@ -529,10 +529,11 @@ module adc_driver #(
 	assign trigger_out = trigger_out_adc; // no clock synchronization here
 
 	always @(posedge clk_adc) begin
-		if (adc_in >= trigger_threshold_adc)
-			trigger_out_adc <= 1;
+		if (adc_in >= trigger_threshold_adc && !sim_switch_adc ||
+			sim_adc_in >= trigger_threshold_adc && sim_switch_adc)
+				trigger_out_adc <= 1;
 		else
-			trigger_out_adc <= 0;
+				trigger_out_adc <= 0;
 	end
 
 	//--------------------------------SIGNAL SYNCHRONIZATION--------------------------------
