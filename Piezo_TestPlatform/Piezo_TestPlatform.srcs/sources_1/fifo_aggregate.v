@@ -25,7 +25,7 @@ module fifo_aggregate #(
     reg [OVFLW_MSB:0] current_memory;
     reg [OVFLW_MSB:0] memory = {OUTPUT_WIDTH{1'b0}};
     reg [3:0] overflow = 0;
-    reg [3:0] current_shift_amount = 0;
+    reg [4:0] current_shift_amount = 0;
     reg [3:0] current_overflow = 0;
     reg [COUNTER_MSB:0] counter = 0;
     
