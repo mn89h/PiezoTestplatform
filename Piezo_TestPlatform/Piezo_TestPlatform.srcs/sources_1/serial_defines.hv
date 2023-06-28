@@ -41,6 +41,9 @@
 // COMP:SIM [0/1]: use simulation data instead of comp_in pins input
 */
 
+// SERIAL CONFIG
+localparam CLKS_PER_BIT             = 5;  // 2.4 MBaud @ 12 MHz
+
 // DESTINATIONS
 localparam DESTINATION_VGA          = 0;
 localparam DESTINATION_COMP         = 1;

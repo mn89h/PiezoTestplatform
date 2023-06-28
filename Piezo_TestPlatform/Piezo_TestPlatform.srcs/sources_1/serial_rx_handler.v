@@ -45,7 +45,7 @@ module serial_rx_handler(
 
     //FTDI with 3 MHz? -> at 115200 Baud ~25 cycles -> times 4 for 12 MHz
     uart_rx #(
-        .CLKS_PER_BIT(10) //1.2 MBaud
+        .CLKS_PER_BIT(CLKS_PER_BIT)
     ) m_uart_rx (
         .i_Clock(clk),
         .i_Rx_Serial(uart_rx_stream),

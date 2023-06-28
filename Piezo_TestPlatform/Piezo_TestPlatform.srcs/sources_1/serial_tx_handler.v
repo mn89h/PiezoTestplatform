@@ -45,6 +45,8 @@ module serial_tx_handler(
     output wire comm_data_ready
     );
 
+    `include "serial_defines.hv"
+    
     // timeout after which an inactive sender is kicked and another one may send, set to 100 cycles
     localparam TIMEOUT_CYCLES_INACTIVE = 100;
     
@@ -65,7 +67,7 @@ module serial_tx_handler(
 
     //FTDI with 3 MHz? -> at 115200 Baud ~25 cycles -> times 4 for 12 MHz
     uart_tx #(
-        .CLKS_PER_BIT(10)
+        .CLKS_PER_BIT(CLKS_PER_BIT)
     ) m_uart_tx (
         .i_Clock(clk),
         .i_Tx_DV(valid),
