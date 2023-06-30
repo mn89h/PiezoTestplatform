@@ -1,0 +1,65 @@
+(footprint "eurocard_10x10" (version 20211014) (generator pcbnew)
+  (layer "F.Cu")
+  (tedit 0)
+  (attr smd board_only exclude_from_bom)
+  (fp_text reference "J3" (at 0 -35.64 unlocked) (layer "F.SilkS") hide
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 9e08eaf7-a538-49e1-acb3-91e047bc3fd7)
+  )
+  (fp_text value "eurocard_10x10" (at 0 -53.53 unlocked) (layer "F.Fab")
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp 31722a14-7c0c-48ed-a9ba-b6a2e0a2f3ad)
+  )
+  (fp_text user "${REFERENCE}" (at 0 -51.79 unlocked) (layer "F.Fab")
+    (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp d86cf991-97ae-4fd2-a241-76b0dfd1e5f8)
+  )
+  (fp_circle (center -46 -46) (end -42.8 -46) (layer "Cmts.User") (width 0.15) (fill none) (tstamp 00285115-56ef-45e8-8528-f99553a17b5e))
+  (fp_circle (center 46 -46) (end 42.8 -46) (layer "Cmts.User") (width 0.15) (fill none) (tstamp 22e6b722-f353-48a3-8b94-904b9f7c9138))
+  (fp_circle (center -46 46) (end -42.8 46) (layer "Cmts.User") (width 0.15) (fill none) (tstamp 7cd7460a-de4d-4e2d-ab86-f2bbbcecffa6))
+  (fp_circle (center 46 46) (end 42.8 46) (layer "Cmts.User") (width 0.15) (fill none) (tstamp 8edd53b2-4877-4a5b-b217-9b3c553b9301))
+  (fp_line (start 50 -46) (end 50 46) (layer "Edge.Cuts") (width 0.15) (tstamp 22bf7020-c313-444e-b812-8d62167db083))
+  (fp_line (start -50 46) (end -50 -46) (layer "Edge.Cuts") (width 0.15) (tstamp 567a84aa-faec-4f5e-b4f6-63f428439809))
+  (fp_line (start -46 50) (end 46 50) (layer "Edge.Cuts") (width 0.15) (tstamp c3571a90-f3db-4d0f-b074-e6cc898f7921))
+  (fp_line (start -46 -50) (end 46 -50) (layer "Edge.Cuts") (width 0.15) (tstamp f03fc069-cba6-471f-842b-09342e567306))
+  (fp_arc (start -50 -46) (mid -48.828427 -48.828427) (end -46 -50) (layer "Edge.Cuts") (width 0.15) (tstamp 1c6e452a-3519-4b92-98f5-9c74f0717054))
+  (fp_arc (start 50 46) (mid 48.828427 48.828427) (end 46 50) (layer "Edge.Cuts") (width 0.15) (tstamp 6ee2eff6-d2ee-43b3-a39c-023a759b20f4))
+  (fp_arc (start -46 50) (mid -48.828427 48.828427) (end -50 46) (layer "Edge.Cuts") (width 0.15) (tstamp 91aeb66b-3414-4567-889a-6c6508c65350))
+  (fp_arc (start 46 -50) (mid 48.828427 -48.828427) (end 50 -46) (layer "Edge.Cuts") (width 0.15) (tstamp d3e24f48-830a-418c-af57-c8b94c641cc7))
+  (fp_circle (center -46 46) (end -42.55 46) (layer "F.CrtYd") (width 0.05) (fill none) (tstamp 931bb4cf-a6ba-41ca-ba4c-951036e4380b))
+  (fp_circle (center -46 -46) (end -42.55 -46) (layer "F.CrtYd") (width 0.05) (fill none) (tstamp 942bb509-0865-4ee6-a623-811abdc04cfe))
+  (fp_circle (center 46 46) (end 42.55 46) (layer "F.CrtYd") (width 0.05) (fill none) (tstamp c0d7ddc3-0fb2-4859-8099-85cf17faa495))
+  (fp_circle (center 46 -46) (end 42.55 -46) (layer "F.CrtYd") (width 0.05) (fill none) (tstamp cefe2b25-c132-4a9d-862f-6dd88da4c699))
+  (pad "1" thru_hole circle (at -46 46) (size 6.4 6.4) (drill 3.2) (layers *.Cu *.Mask) (tstamp 0da0b0c5-5d6c-4977-8d60-d7b14bc6367d))
+  (pad "1" thru_hole circle (at -46 -46) (size 6.4 6.4) (drill 3.2) (layers *.Cu *.Mask) (tstamp 679644e3-5194-49c9-bc2f-670fb057cc6d))
+  (pad "1" thru_hole circle (at 46 46 180) (size 6.4 6.4) (drill 3.2) (layers *.Cu *.Mask) (tstamp da0518d1-a4a1-4d96-a115-d0b555fd0563))
+  (pad "1" thru_hole circle (at 46 -46 180) (size 6.4 6.4) (drill 3.2) (layers *.Cu *.Mask) (tstamp daee85e0-2341-48ca-a66d-285e2859aad2))
+  (group "" (id 12a61f3b-c9a1-475a-b95a-228fd98d7166)
+    (members
+      00285115-56ef-45e8-8528-f99553a17b5e
+      679644e3-5194-49c9-bc2f-670fb057cc6d
+      942bb509-0865-4ee6-a623-811abdc04cfe
+    )
+  )
+  (group "" (id 8656927c-d21a-4c21-bbce-59fe9fc6c17c)
+    (members
+      0da0b0c5-5d6c-4977-8d60-d7b14bc6367d
+      7cd7460a-de4d-4e2d-ab86-f2bbbcecffa6
+      931bb4cf-a6ba-41ca-ba4c-951036e4380b
+    )
+  )
+  (group "" (id 8c964be6-6c78-49c2-9297-d6e2f99f7949)
+    (members
+      22e6b722-f353-48a3-8b94-904b9f7c9138
+      cefe2b25-c132-4a9d-862f-6dd88da4c699
+      daee85e0-2341-48ca-a66d-285e2859aad2
+    )
+  )
+  (group "" (id b480ff03-7cab-42b4-91d0-4a8efdc14314)
+    (members
+      8edd53b2-4877-4a5b-b217-9b3c553b9301
+      c0d7ddc3-0fb2-4859-8099-85cf17faa495
+      da0518d1-a4a1-4d96-a115-d0b555fd0563
+    )
+  )
+)
