@@ -480,6 +480,7 @@ module comm_protocol #(
 		case (state_test)
 			0: begin
 				if (test_start == 1 && state_comm == 0 && comm_start == 0) begin
+					comm_fin 		<= 0;
 					piezo_start 	<= 1;
 					piezo_start_cfg_rdy	<= 1;
 					state_test 		<= 2;
@@ -493,7 +494,8 @@ module comm_protocol #(
 					state_test 		<= 2;
 				end
 				if (piezo_fin == 1 && test_start == 0) begin
-					state_test <= 0;
+					state_test 		<= 0;
+					comm_fin 		<= 1;
 				end
 			end
 			2: begin

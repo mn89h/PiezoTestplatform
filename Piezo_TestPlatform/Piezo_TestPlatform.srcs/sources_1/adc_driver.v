@@ -32,7 +32,7 @@ module adc_driver #(
 	parameter DEFAULT_THOLD  = 8'd200, 		parameter DEFAULT_THOLD_ASCII	= 24'h323030,
 	parameter DEFAULT_MAXSMP = 16'd40000, 	parameter DEFAULT_MAXSMP_ASCII  = 40'h3430303030,
 	parameter DEFAULT_WIDTH	 = 4'd5, 		parameter DEFAULT_WIDTH_ASCII  	= 16'h35,
-	parameter DEFAULT_FREQ   = 14'd5000, 	parameter DEFAULT_FREQ_ASCII	= 40'h35303030		// 250..10000 [kHz] in 250 [kHz] steps
+	parameter DEFAULT_FREQ   = 14'd3000, 	parameter DEFAULT_FREQ_ASCII	= 40'h33303030		// 250..10000 [kHz] in 250 [kHz] steps
 ) (
 	// clk input and clk_adc output
     input wire clk,

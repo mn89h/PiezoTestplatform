@@ -30,7 +30,7 @@ module piezo_driver(
     output wire piezodriver_hi
     );
     
-    parameter DLY = 5;                      // turn-on delay from rising/falling edge to output. Time per step: 1/clk
+    parameter DLY = 5; // turn-on delay from rising/falling edge to output. Time per step: 1/clk
     
     reg out0 = 0;
     reg out1 = 0;
@@ -38,15 +38,15 @@ module piezo_driver(
     reg [3:0] dly0 = DLY;
     reg [3:0] dly1 = DLY;
    
-    reg start_400 = 0;
-    reg fin_400 = 0;
+    reg start_250 = 0;
+    reg fin_250 = 0;
     reg [11:0] numpulses;
     reg [11:0] pulse_counter = 0;
     reg [8:0] counter_compare_value = 9'd200; 
     reg [8:0] clk_counter = 0;
     
-    wire [21:0] start_cfg_400;
-    wire start_cfg_400_vld;
+    wire [21:0] start_cfg_250;
+    wire start_cfg_250_vld;
 		
     assign piezodriver_lo = out0;
     assign piezodriver_hi = out1;
@@ -62,17 +62,17 @@ module piezo_driver(
     reg [4:0] state_out = IDLE;
 
     // clock and state control
-    always @(posedge clk_400) begin
+    always @(posedge clk_250) begin
         case (state)
             IDLE : begin
                 clk_piezo       <= 0;
                 clk_counter     <= 0;
                 pulse_counter   <= 0;
-                fin_400         <= 1;
+                fin_250         <= 1;
 
-                if (start_400) begin
+                if (start_250) begin
                     state       <= BUSY;
-                    fin_400     <= 0;
+                    fin_250     <= 0;
                 end
             end
             BUSY : begin
@@ -97,7 +97,7 @@ module piezo_driver(
     end
 
     // MOSFET output control
-    always @(posedge clk_400) begin
+    always @(posedge clk_250) begin
         case (state_out)
             IDLE : begin
                 out0 <= 0;
@@ -152,33 +152,33 @@ module piezo_driver(
 		.SRC_SYNC_FF	(3),			// DECIMAL; range: 2-10 
 		.WIDTH			(22)	        // DECIMAL; range: 1-1024
     ) u_cdc_start_cfg ( 
-		.dest_out	(start_cfg_400),	// WIDTH-bit output: Input bus (src_in) synchronized to destination clock domain.  This output is registered. 
-		.dest_req	(start_cfg_400_vld),// 1-bit output: Assertion of this signal indicates that new dest_out data has been  received and is ready to be used or captured by the destination logic. When  DEST_EXT_HSK = 1, this signal will deassert once the source handshake  acknowledges that the destination clock domain has received the transferred data.  When DEST_EXT_HSK = 0, this signal asserts for one clock period when dest_out bus  is valid. This output is registered. 
+		.dest_out	(start_cfg_250),	// WIDTH-bit output: Input bus (src_in) synchronized to destination clock domain.  This output is registered. 
+		.dest_req	(start_cfg_250_vld),// 1-bit output: Assertion of this signal indicates that new dest_out data has been  received and is ready to be used or captured by the destination logic. When  DEST_EXT_HSK = 1, this signal will deassert once the source handshake  acknowledges that the destination clock domain has received the transferred data.  When DEST_EXT_HSK = 0, this signal asserts for one clock period when dest_out bus  is valid. This output is registered. 
 		.src_rcv	(start_cfg_rcv),    // 1-bit output: Acknowledgement from destination logic that src_in has been  received. This signal will be deasserted once destination handshake has fully  completed, thus completing a full data transfer. This output is registered. 
 		.dest_ack	(),					// 1-bit input: optional; required when DEST_EXT_HSK = 1 
-		.dest_clk	(clk_400),			// 1-bit input: Destination clock. 
+		.dest_clk	(clk_250),			// 1-bit input: Destination clock. 
 		.src_clk	(clk),				// 1-bit input: Source clock. 
 		.src_in		(start_cfg),		// WIDTH-bit input: Input bus that will be synchronized to the destination clock  domain. 
 		.src_send	(start_cfg_rdy)		// 1-bit input: Assertion of this signal allows the src_in bus to be synchronized to  the destination clock domain. This signal should only be asserted when src_rcv is  deasserted, indicating that the previous data transfer is complete. This signal  should only be deasserted once src_rcv is asserted, acknowledging that the src_in  has been received by the destination logic.
 	);
 
     reg start_cfg_changed = 0;
-	always @(posedge clk_400) begin
-		if (start_cfg_400_vld) begin
+	always @(posedge clk_250) begin
+		if (start_cfg_250_vld) begin
             start_cfg_changed   <= 1;
 		end
 
         case (state)
             IDLE : begin
-                if (start_cfg_400_vld || start_cfg_changed) begin
+                if (start_cfg_250_vld || start_cfg_changed) begin
                     start_cfg_changed       <= 0;
-                    start_400               <= start_cfg_400[0];
-                    numpulses			    <= (start_cfg_400[12:1] << 1) - 1;
-                    counter_compare_value	<= start_cfg_400[21:13] - 2;
+                    start_250               <= start_cfg_250[0];
+                    numpulses			    <= (start_cfg_250[12:1] << 1) - 1;
+                    counter_compare_value	<= start_cfg_250[21:13] - 2;
                 end
             end 
             BUSY, BUSYPULSE : begin
-                start_400 <= 0;
+                start_250 <= 0;
             end 
         endcase
 	end
@@ -194,21 +194,21 @@ module piezo_driver(
 		.dest_pulse	(fin),	        // 1-bit output: Outputs a pulse the size of one dest_clk period when a pulse  transfer is correctly initiated on src_pulse input. This output is combinatorial unless REG_OUTPUT is set to 1.
 		.dest_clk	(clk),      	// 1-bit input: Destination clock. 
 		.dest_rst	(),     		// 1-bit input: optional; required when RST_USED = 1 
-		.src_clk	(clk_400),     	// 1-bit input: Source clock. 
-		.src_pulse	(fin_400),		// 1-bit input: Rising edge of this signal initiates a pulse transfer to the  destination clock domain. The minimum gap between each pulse transfer must be at the minimum 2*(larger(src_clk period, dest_clk period)). This is measured  between the falling edge of a src_pulse to the rising edge of the next  src_pulse.
+		.src_clk	(clk_250),     	// 1-bit input: Source clock. 
+		.src_pulse	(fin_250),		// 1-bit input: Rising edge of this signal initiates a pulse transfer to the  destination clock domain. The minimum gap between each pulse transfer must be at the minimum 2*(larger(src_clk period, dest_clk period)). This is measured  between the falling edge of a src_pulse to the rising edge of the next  src_pulse.
 		.src_rst	()   			// 1-bit input: optional; required when RST_USED = 1
 	);
     
     wire            clkin_buf;
     wire            clk_feedback_buf;
     wire            clk_feedback_unbuf;
-    wire            clk_400_unbuf;
-    wire            clk_400_buf;
+    wire            clk_250_unbuf;
+    wire            clk_250_buf;
     //-------------------------------------------------------------------------------------------
     assign clkin_buf = clk;
     BUFG BUFG_FB    (.I (clk_feedback_unbuf), .O (clk_feedback_buf));
-    BUFG BUFG_CLK0  (.I (clk_400_unbuf), .O (clk_400_buf));
-    assign clk_400 = clk_400_buf;
+    BUFG BUFG_CLK0  (.I (clk_250_unbuf), .O (clk_250_buf));
+    assign clk_250 = clk_250_buf;
 
     MMCME2_BASE #(   // Xilinx HDL Language Template, version 2021.2
     .BANDWIDTH("OPTIMIZED"),        // OPTIMIZED, HIGH, LOW
@@ -223,7 +223,7 @@ module piezo_driver(
     .REF_JITTER1        (0.010),    // Reference input jitter in UI, (0.000-0.999).
     .STARTUP_WAIT       ("FALSE")   // Delay DONE until PLL Locks, ("TRUE"/"FALSE")
     ) mmcme2_piezo_inst (
-    .CLKOUT0            (clk_400_unbuf),        // 1-bit output: CLKOUT0
+    .CLKOUT0            (clk_250_unbuf),        // 1-bit output: CLKOUT0
     .CLKOUT1            (),                     // 1-bit output: CLKOUT1
     .CLKOUT2            (),                     // 1-bit output: CLKOUT2
     .CLKOUT3            (),                     // 1-bit output: CLKOUT3

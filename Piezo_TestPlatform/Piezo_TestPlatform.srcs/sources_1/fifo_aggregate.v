@@ -66,7 +66,6 @@ module fifo_aggregate #(
             // end
             for (ii = 0; ii < MAX_INPUT_WIDTH; ii = ii + 1) begin
                 if (input_width > ii) current_memory[STORE_MSB-input_width+1+ii+current_overflow] = data_in[ii];
-                //if (input_width > ii) current_memory[STORE_MSB-input_width] = 1;
             end
             memory <= current_memory;
             overflow <= current_overflow;

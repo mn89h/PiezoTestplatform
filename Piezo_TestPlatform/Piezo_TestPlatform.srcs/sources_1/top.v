@@ -139,11 +139,11 @@ wire  trigger_comp;
 
 // ----------------------------------------------ASSIGNMENTS---------------------------------------------
 
-assign led1_pin = rx_busy;
-assign led2_pin = tx_busy;
+assign led1_pin = 0;
+assign led2_pin = 0;
 assign led3_pin = 0;
 assign led4_pin = 0;
-assign extled1_pin = comm_fin;
+assign extled1_pin = ~comm_fin;
 assign extled2_pin = vga_en_pin;
 
 assign sysclk = sysclk_pin;
@@ -218,7 +218,7 @@ comm_protocol #(
  u_comm_protocol (
     .clk                    ( sysclk                ),
 
-    .btn_start              ( btn0_down             ),
+    .btn_start              ( extsw1_down           ),
 
     .rx_dst                 ( rx_dst                ),
     .rx_cmd                 ( rx_cmd                ),
