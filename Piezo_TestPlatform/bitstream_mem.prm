@@ -8,4 +8,4 @@ Start Address      0x00000000
 End Address        0x003FFFFF
 
 Addr1         Addr2         Date                    File(s)
-0x00000000    0x0012F2CB    Aug 16 09:33:13 2023    C:/Users/malte/Desktop/Piezo_Project/piezo_testplatform_1.0/Piezo_TestPlatform/Piezo_TestPlatform.runs/impl_1/top.bit
+0x00000000    0x0012F2CB    Aug 21 11:40:17 2023    C:/Users/malte/Desktop/Piezo_Project/piezo_testplatform_1.0/Piezo_TestPlatform/Piezo_TestPlatform.runs/impl_1/top.bit

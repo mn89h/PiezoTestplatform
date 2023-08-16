@@ -73,7 +73,7 @@ parameter COMM_DEFAULT_STL       = 16'd500       ;   parameter COMM_DEFAULT_STL_
 parameter COMM_DEFAULT_0L        = 12'd100       ;   parameter COMM_DEFAULT_0L_ASCII    = 32'h313030;
 parameter COMM_DEFAULT_1L        = 12'd200       ;   parameter COMM_DEFAULT_1L_ASCII    = 32'h323030;
 parameter COMM_DEFAULT_BRL       = 16'd200       ;   parameter COMM_DEFAULT_BRL_ASCII   = 40'h323030;
-parameter COMM_DEFAULT_CLKDIV    = 9'd200        ;   parameter COMM_DEFAULT_CLKDIV_ASCII= 32'h323030;
+parameter COMM_DEFAULT_CLKDIV    = 9'd113        ;   parameter COMM_DEFAULT_CLKDIV_ASCII= 32'h313133;
 
 
 // adc_driver Parameters
