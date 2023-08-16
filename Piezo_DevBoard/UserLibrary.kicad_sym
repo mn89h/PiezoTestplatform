@@ -267,8 +267,17 @@
     (property "Datasheet" "" (id 3) (at 0 0 0)
       (effects (font (size 1.27 1.27)) hide)
     )
+    (symbol "CMODS7_Board-Piezo_New_0_0"
+      (text "USB" (at 2.54 -54.61 0)
+        (effects (font (size 1.27 1.27)))
+      )
+    )
     (symbol "CMODS7_Board-Piezo_New_0_1"
-      (rectangle (start -5.08 -1.27) (end 10.16 -53.34)
+      (rectangle (start -5.08 -1.27) (end 10.16 -55.88)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (rectangle (start -1.27 -55.88) (end 6.35 -53.34)
         (stroke (width 0) (type default) (color 0 0 0 0))
         (fill (type none))
       )
