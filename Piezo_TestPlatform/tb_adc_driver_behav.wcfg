@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_adc_driver_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_adc_driver" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="71.700001 us"></ZoomEndTime>
+      <Cursor1Time time="0.000000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="210"></NameColumnWidth>
+      <ValueColumnWidth column_width="188"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="73" />
+   <wave_markers>
+      <marker time="934861042" label="" />
+   </wave_markers>
+   <wvobject fp_name="/tb_adc_driver/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/clk_adc" type="logic">
+      <obj_property name="ElementShortName">clk_adc</obj_property>
+      <obj_property name="ObjectShortName">clk_adc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/adc_in" type="array">
+      <obj_property name="ElementShortName">adc_in[9:0]</obj_property>
+      <obj_property name="ObjectShortName">adc_in[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/rx_dst" type="array">
+      <obj_property name="ElementShortName">rx_dst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_dst[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/rx_cmd" type="array">
+      <obj_property name="ElementShortName">rx_cmd[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_cmd[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/rx_val" type="array">
+      <obj_property name="ElementShortName">rx_val[15:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_val[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/rx_fin" type="logic">
+      <obj_property name="ElementShortName">rx_fin</obj_property>
+      <obj_property name="ObjectShortName">rx_fin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/tx_ready" type="logic">
+      <obj_property name="ElementShortName">tx_ready</obj_property>
+      <obj_property name="ObjectShortName">tx_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/trigger_out" type="logic">
+      <obj_property name="ElementShortName">trigger_out</obj_property>
+      <obj_property name="ObjectShortName">trigger_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/tx_valid" type="logic">
+      <obj_property name="ElementShortName">tx_valid</obj_property>
+      <obj_property name="ObjectShortName">tx_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/tx_data" type="array">
+      <obj_property name="ElementShortName">tx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_data[7:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/adc_en" type="logic">
+      <obj_property name="ElementShortName">adc_en</obj_property>
+      <obj_property name="ObjectShortName">adc_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/force_single" type="logic">
+      <obj_property name="ElementShortName">force_single</obj_property>
+      <obj_property name="ObjectShortName">force_single</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/force_single_adc" type="logic">
+      <obj_property name="ElementShortName">force_single_adc</obj_property>
+      <obj_property name="ObjectShortName">force_single_adc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/width_adc" type="array">
+      <obj_property name="ElementShortName">width_adc[3:0]</obj_property>
+      <obj_property name="ObjectShortName">width_adc[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/width" type="array">
+      <obj_property name="ElementShortName">width[3:0]</obj_property>
+      <obj_property name="ObjectShortName">width[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/tx_valid" type="logic">
+      <obj_property name="ElementShortName">tx_valid</obj_property>
+      <obj_property name="ObjectShortName">tx_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/tx_start" type="logic">
+      <obj_property name="ElementShortName">tx_start</obj_property>
+      <obj_property name="ObjectShortName">tx_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/tx_ready" type="logic">
+      <obj_property name="ElementShortName">tx_ready</obj_property>
+      <obj_property name="ObjectShortName">tx_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/tx_data" type="array">
+      <obj_property name="ElementShortName">tx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_data[7:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/tx_count" type="array">
+      <obj_property name="ElementShortName">tx_count[5:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_count[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/triggered" type="logic">
+      <obj_property name="ElementShortName">triggered</obj_property>
+      <obj_property name="ObjectShortName">triggered</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/trigger_threshold_adc" type="array">
+      <obj_property name="ElementShortName">trigger_threshold_adc[9:0]</obj_property>
+      <obj_property name="ObjectShortName">trigger_threshold_adc[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/trigger_threshold" type="array">
+      <obj_property name="ElementShortName">trigger_threshold[9:0]</obj_property>
+      <obj_property name="ObjectShortName">trigger_threshold[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/trigger_out_adc" type="logic">
+      <obj_property name="ElementShortName">trigger_out_adc</obj_property>
+      <obj_property name="ObjectShortName">trigger_out_adc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/trigger_out" type="logic">
+      <obj_property name="ElementShortName">trigger_out</obj_property>
+      <obj_property name="ObjectShortName">trigger_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/trigger_adc" type="logic">
+      <obj_property name="ElementShortName">trigger_adc</obj_property>
+      <obj_property name="ObjectShortName">trigger_adc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/trigger" type="logic">
+      <obj_property name="ElementShortName">trigger</obj_property>
+      <obj_property name="ObjectShortName">trigger</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/state_tx" type="array">
+      <obj_property name="ElementShortName">state_tx[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state_tx[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/state_sample" type="array">
+      <obj_property name="ElementShortName">state_sample[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state_sample[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/send_sample_stream" type="logic">
+      <obj_property name="ElementShortName">send_sample_stream</obj_property>
+      <obj_property name="ObjectShortName">send_sample_stream</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/sample_stream" type="array">
+      <obj_property name="ElementShortName">sample_stream[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_stream[7:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/sample_in_vld" type="logic">
+      <obj_property name="ElementShortName">sample_in_vld</obj_property>
+      <obj_property name="ObjectShortName">sample_in_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/sample_in" type="array">
+      <obj_property name="ElementShortName">sample_in[9:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_in[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/sample_count" type="array">
+      <obj_property name="ElementShortName">sample_count[17:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_count[17:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/rx_val" type="array">
+      <obj_property name="ElementShortName">rx_val[15:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_val[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/rx_fin" type="logic">
+      <obj_property name="ElementShortName">rx_fin</obj_property>
+      <obj_property name="ObjectShortName">rx_fin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/rx_dst" type="array">
+      <obj_property name="ElementShortName">rx_dst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_dst[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/rx_cmd" type="array">
+      <obj_property name="ElementShortName">rx_cmd[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_cmd[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/recv_value_ascii" type="array">
+      <obj_property name="ElementShortName">recv_value_ascii[39:0]</obj_property>
+      <obj_property name="ObjectShortName">recv_value_ascii[39:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/recv_value" type="array">
+      <obj_property name="ElementShortName">recv_value[15:0]</obj_property>
+      <obj_property name="ObjectShortName">recv_value[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/outfifo_vld" type="logic">
+      <obj_property name="ElementShortName">outfifo_vld</obj_property>
+      <obj_property name="ObjectShortName">outfifo_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/outfifo_rdy" type="logic">
+      <obj_property name="ElementShortName">outfifo_rdy</obj_property>
+      <obj_property name="ObjectShortName">outfifo_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/outfifo_full" type="logic">
+      <obj_property name="ElementShortName">outfifo_full</obj_property>
+      <obj_property name="ObjectShortName">outfifo_full</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/outfifo_empty" type="logic">
+      <obj_property name="ElementShortName">outfifo_empty</obj_property>
+      <obj_property name="ObjectShortName">outfifo_empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/max_samples_adc" type="array">
+      <obj_property name="ElementShortName">max_samples_adc[15:0]</obj_property>
+      <obj_property name="ObjectShortName">max_samples_adc[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/max_samples" type="array">
+      <obj_property name="ElementShortName">max_samples[15:0]</obj_property>
+      <obj_property name="ObjectShortName">max_samples[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/infifo_vld" type="logic">
+      <obj_property name="ElementShortName">infifo_vld</obj_property>
+      <obj_property name="ObjectShortName">infifo_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/infifo_data" type="array">
+      <obj_property name="ElementShortName">infifo_data[47:0]</obj_property>
+      <obj_property name="ObjectShortName">infifo_data[47:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/ii" type="array">
+      <obj_property name="ElementShortName">ii[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ii[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/freq_update" type="logic">
+      <obj_property name="ElementShortName">freq_update</obj_property>
+      <obj_property name="ObjectShortName">freq_update</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/freq_state" type="array">
+      <obj_property name="ElementShortName">freq_state[5:0]</obj_property>
+      <obj_property name="ObjectShortName">freq_state[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/freq_locked" type="logic">
+      <obj_property name="ElementShortName">freq_locked</obj_property>
+      <obj_property name="ObjectShortName">freq_locked</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/force_single_stretched" type="logic">
+      <obj_property name="ElementShortName">force_single_stretched</obj_property>
+      <obj_property name="ObjectShortName">force_single_stretched</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/force_single_adc" type="logic">
+      <obj_property name="ElementShortName">force_single_adc</obj_property>
+      <obj_property name="ObjectShortName">force_single_adc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/force_single" type="logic">
+      <obj_property name="ElementShortName">force_single</obj_property>
+      <obj_property name="ObjectShortName">force_single</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/config_w" type="array">
+      <obj_property name="ElementShortName">config_w[30:0]</obj_property>
+      <obj_property name="ObjectShortName">config_w[30:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/config_rdy" type="logic">
+      <obj_property name="ElementShortName">config_rdy</obj_property>
+      <obj_property name="ObjectShortName">config_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/config_adc_w" type="array">
+      <obj_property name="ElementShortName">config_adc_w[30:0]</obj_property>
+      <obj_property name="ObjectShortName">config_adc_w[30:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/config_adc_vld" type="logic">
+      <obj_property name="ElementShortName">config_adc_vld</obj_property>
+      <obj_property name="ObjectShortName">config_adc_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/clk_adc" type="logic">
+      <obj_property name="ElementShortName">clk_adc</obj_property>
+      <obj_property name="ObjectShortName">clk_adc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/bram_vld" type="logic">
+      <obj_property name="ElementShortName">bram_vld</obj_property>
+      <obj_property name="ObjectShortName">bram_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/bram_reset" type="logic">
+      <obj_property name="ElementShortName">bram_reset</obj_property>
+      <obj_property name="ObjectShortName">bram_reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/bram_rdy" type="logic">
+      <obj_property name="ElementShortName">bram_rdy</obj_property>
+      <obj_property name="ObjectShortName">bram_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/bram_full" type="logic">
+      <obj_property name="ElementShortName">bram_full</obj_property>
+      <obj_property name="ObjectShortName">bram_full</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/bram_empty" type="logic">
+      <obj_property name="ElementShortName">bram_empty</obj_property>
+      <obj_property name="ObjectShortName">bram_empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/bram_data" type="array">
+      <obj_property name="ElementShortName">bram_data[47:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_data[47:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/adc_in" type="array">
+      <obj_property name="ElementShortName">adc_in[9:0]</obj_property>
+      <obj_property name="ObjectShortName">adc_in[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/adc_en" type="logic">
+      <obj_property name="ElementShortName">adc_en</obj_property>
+      <obj_property name="ObjectShortName">adc_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/reset_w" type="logic">
+      <obj_property name="ElementShortName">reset_w</obj_property>
+      <obj_property name="ObjectShortName">reset_w</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_adc_driver/u_adc_driver/reset_w_stretched" type="logic">
+      <obj_property name="ElementShortName">reset_w_stretched</obj_property>
+      <obj_property name="ObjectShortName">reset_w_stretched</obj_property>
+   </wvobject>
+</wave_config>

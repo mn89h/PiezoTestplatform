@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_top_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_top" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="679.592727 us"></ZoomStartTime>
+      <ZoomEndTime time="936.592728 us"></ZoomEndTime>
+      <Cursor1Time time="722.426060 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="210"></NameColumnWidth>
+      <ValueColumnWidth column_width="176"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="104" />
+   <wave_markers>
+      <marker time="934861042" label="" />
+   </wave_markers>
+   <wvobject fp_name="/tb_top/sysclk_pin" type="logic">
+      <obj_property name="ElementShortName">sysclk_pin</obj_property>
+      <obj_property name="ObjectShortName">sysclk_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uart_rx" type="logic">
+      <obj_property name="ElementShortName">uart_rx</obj_property>
+      <obj_property name="ObjectShortName">uart_rx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_serial_interface/m_serial_rx_handler/dst_buf" type="array">
+      <obj_property name="ElementShortName">dst_buf[47:0]</obj_property>
+      <obj_property name="ObjectShortName">dst_buf[47:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_serial_interface/m_serial_rx_handler/cmd_buf_next" type="array">
+      <obj_property name="ElementShortName">cmd_buf_next[47:0]</obj_property>
+      <obj_property name="ObjectShortName">cmd_buf_next[47:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_serial_interface/m_serial_rx_handler/val_buf_next" type="array">
+      <obj_property name="ElementShortName">val_buf_next[47:0]</obj_property>
+      <obj_property name="ObjectShortName">val_buf_next[47:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/btn0_pin" type="logic">
+      <obj_property name="ElementShortName">btn0_pin</obj_property>
+      <obj_property name="ObjectShortName">btn0_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/btn1_pin" type="logic">
+      <obj_property name="ElementShortName">btn1_pin</obj_property>
+      <obj_property name="ObjectShortName">btn1_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extsw1_pin" type="logic">
+      <obj_property name="ElementShortName">extsw1_pin</obj_property>
+      <obj_property name="ObjectShortName">extsw1_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extsw2_pin" type="logic">
+      <obj_property name="ElementShortName">extsw2_pin</obj_property>
+      <obj_property name="ObjectShortName">extsw2_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extsw3_pin" type="logic">
+      <obj_property name="ElementShortName">extsw3_pin</obj_property>
+      <obj_property name="ObjectShortName">extsw3_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extsw4_pin" type="logic">
+      <obj_property name="ElementShortName">extsw4_pin</obj_property>
+      <obj_property name="ObjectShortName">extsw4_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/adc_in_pins" type="array">
+      <obj_property name="ElementShortName">adc_in_pins[9:0]</obj_property>
+      <obj_property name="ObjectShortName">adc_in_pins[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/comp_in_pin" type="logic">
+      <obj_property name="ElementShortName">comp_in_pin</obj_property>
+      <obj_property name="ObjectShortName">comp_in_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uart_tx_pin" type="logic">
+      <obj_property name="ElementShortName">uart_tx_pin</obj_property>
+      <obj_property name="ObjectShortName">uart_tx_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_serial_interface/m_serial_tx_handler/adc_data" type="array">
+      <obj_property name="ElementShortName">adc_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">adc_data[7:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_adc_driver/sample_in" type="array">
+      <obj_property name="ElementShortName">sample_in[9:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_in[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_adc_driver/sample_in_vld" type="logic">
+      <obj_property name="ElementShortName">sample_in_vld</obj_property>
+      <obj_property name="ObjectShortName">sample_in_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="group134" type="group">
+      <obj_property name="label">infifo</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_infifo/memory" type="array">
+         <obj_property name="ElementShortName">memory[57:0]</obj_property>
+         <obj_property name="ObjectShortName">memory[57:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_infifo/overflow" type="array">
+         <obj_property name="ElementShortName">overflow[3:0]</obj_property>
+         <obj_property name="ObjectShortName">overflow[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_infifo/current_shift_amount" type="array">
+         <obj_property name="ElementShortName">current_shift_amount[3:0]</obj_property>
+         <obj_property name="ObjectShortName">current_shift_amount[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_infifo/current_overflow" type="array">
+         <obj_property name="ElementShortName">current_overflow[3:0]</obj_property>
+         <obj_property name="ObjectShortName">current_overflow[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_infifo/counter" type="array">
+         <obj_property name="ElementShortName">counter[5:0]</obj_property>
+         <obj_property name="ObjectShortName">counter[5:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group142" type="group">
+      <obj_property name="label">outfifo</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/data_in" type="array">
+         <obj_property name="ElementShortName">data_in[47:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in[47:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/data_out" type="array">
+         <obj_property name="ElementShortName">data_out[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_out[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/memory" type="array">
+         <obj_property name="ElementShortName">memory[0:11][7:0]</obj_property>
+         <obj_property name="ObjectShortName">memory[0:11][7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/rd_ptr" type="array">
+         <obj_property name="ElementShortName">rd_ptr[4:0]</obj_property>
+         <obj_property name="ObjectShortName">rd_ptr[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/wr_ptr" type="array">
+         <obj_property name="ElementShortName">wr_ptr[4:0]</obj_property>
+         <obj_property name="ObjectShortName">wr_ptr[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/wr_addr" type="array">
+         <obj_property name="ElementShortName">wr_addr[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wr_addr[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/u_top/u_adc_driver/u_outfifo/rd_addr" type="array">
+         <obj_property name="ElementShortName">rd_addr[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rd_addr[3:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led1_pin" type="logic">
+      <obj_property name="ElementShortName">led1_pin</obj_property>
+      <obj_property name="ObjectShortName">led1_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led2_pin" type="logic">
+      <obj_property name="ElementShortName">led2_pin</obj_property>
+      <obj_property name="ObjectShortName">led2_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led3_pin" type="logic">
+      <obj_property name="ElementShortName">led3_pin</obj_property>
+      <obj_property name="ObjectShortName">led3_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/led4_pin" type="logic">
+      <obj_property name="ElementShortName">led4_pin</obj_property>
+      <obj_property name="ObjectShortName">led4_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extled1_pin" type="logic">
+      <obj_property name="ElementShortName">extled1_pin</obj_property>
+      <obj_property name="ObjectShortName">extled1_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extled2_pin" type="logic">
+      <obj_property name="ElementShortName">extled2_pin</obj_property>
+      <obj_property name="ObjectShortName">extled2_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extled3_pin" type="logic">
+      <obj_property name="ElementShortName">extled3_pin</obj_property>
+      <obj_property name="ObjectShortName">extled3_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extled4_pin" type="logic">
+      <obj_property name="ElementShortName">extled4_pin</obj_property>
+      <obj_property name="ObjectShortName">extled4_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extled5_pin" type="logic">
+      <obj_property name="ElementShortName">extled5_pin</obj_property>
+      <obj_property name="ObjectShortName">extled5_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/extled6_pin" type="logic">
+      <obj_property name="ElementShortName">extled6_pin</obj_property>
+      <obj_property name="ObjectShortName">extled6_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/piezodriverb_lo_pin" type="logic">
+      <obj_property name="ElementShortName">piezodriverb_lo_pin</obj_property>
+      <obj_property name="ObjectShortName">piezodriverb_lo_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/piezodrivera_hi_pin" type="logic">
+      <obj_property name="ElementShortName">piezodrivera_hi_pin</obj_property>
+      <obj_property name="ObjectShortName">piezodrivera_hi_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/vga_en_pin" type="logic">
+      <obj_property name="ElementShortName">vga_en_pin</obj_property>
+      <obj_property name="ObjectShortName">vga_en_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/vga_gain_pins" type="array">
+      <obj_property name="ElementShortName">vga_gain_pins[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_gain_pins[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/adc_clk_pin" type="logic">
+      <obj_property name="ElementShortName">adc_clk_pin</obj_property>
+      <obj_property name="ObjectShortName">adc_clk_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/adc_en_pin" type="logic">
+      <obj_property name="ElementShortName">adc_en_pin</obj_property>
+      <obj_property name="ObjectShortName">adc_en_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/comp_en_pin" type="logic">
+      <obj_property name="ElementShortName">comp_en_pin</obj_property>
+      <obj_property name="ObjectShortName">comp_en_pin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/comp_in" type="logic">
+      <obj_property name="ElementShortName">comp_in</obj_property>
+      <obj_property name="ObjectShortName">comp_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/trigger_in" type="logic">
+      <obj_property name="ElementShortName">trigger_in</obj_property>
+      <obj_property name="ObjectShortName">trigger_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/rx_dst" type="array">
+      <obj_property name="ElementShortName">rx_dst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_dst[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/rx_cmd" type="array">
+      <obj_property name="ElementShortName">rx_cmd[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_cmd[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/rx_val" type="array">
+      <obj_property name="ElementShortName">rx_val[15:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_val[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/rx_fin" type="logic">
+      <obj_property name="ElementShortName">rx_fin</obj_property>
+      <obj_property name="ObjectShortName">rx_fin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/tx_ready" type="logic">
+      <obj_property name="ElementShortName">tx_ready</obj_property>
+      <obj_property name="ObjectShortName">tx_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/tx_valid" type="logic">
+      <obj_property name="ElementShortName">tx_valid</obj_property>
+      <obj_property name="ObjectShortName">tx_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/tx_data" type="array">
+      <obj_property name="ElementShortName">tx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/comp_en" type="logic">
+      <obj_property name="ElementShortName">comp_en</obj_property>
+      <obj_property name="ObjectShortName">comp_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/ii" type="array">
+      <obj_property name="ElementShortName">ii[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ii[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/reset_w" type="logic">
+      <obj_property name="ElementShortName">reset_w</obj_property>
+      <obj_property name="ObjectShortName">reset_w</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/reset_w_comp" type="logic">
+      <obj_property name="ElementShortName">reset_w_comp</obj_property>
+      <obj_property name="ObjectShortName">reset_w_comp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/freq_state" type="array">
+      <obj_property name="ElementShortName">freq_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">freq_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/state_tx" type="array">
+      <obj_property name="ElementShortName">state_tx[3:0]</obj_property>
+      <obj_property name="ObjectShortName">state_tx[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/write_buffer" type="array">
+      <obj_property name="ElementShortName">write_buffer[535:0]</obj_property>
+      <obj_property name="ObjectShortName">write_buffer[535:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/tx_count" type="array">
+      <obj_property name="ElementShortName">tx_count[6:0]</obj_property>
+      <obj_property name="ObjectShortName">tx_count[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/tx_start" type="logic">
+      <obj_property name="ElementShortName">tx_start</obj_property>
+      <obj_property name="ObjectShortName">tx_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/max_samples" type="array">
+      <obj_property name="ElementShortName">max_samples[15:0]</obj_property>
+      <obj_property name="ObjectShortName">max_samples[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/width" type="array">
+      <obj_property name="ElementShortName">width[3:0]</obj_property>
+      <obj_property name="ObjectShortName">width[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sim_switch" type="logic">
+      <obj_property name="ElementShortName">sim_switch</obj_property>
+      <obj_property name="ObjectShortName">sim_switch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/force_single" type="logic">
+      <obj_property name="ElementShortName">force_single</obj_property>
+      <obj_property name="ObjectShortName">force_single</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/freq_update" type="logic">
+      <obj_property name="ElementShortName">freq_update</obj_property>
+      <obj_property name="ObjectShortName">freq_update</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/config_rdy" type="logic">
+      <obj_property name="ElementShortName">config_rdy</obj_property>
+      <obj_property name="ObjectShortName">config_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/freq_locked" type="logic">
+      <obj_property name="ElementShortName">freq_locked</obj_property>
+      <obj_property name="ObjectShortName">freq_locked</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/ascii_val_power" type="array">
+      <obj_property name="ElementShortName">ascii_val_power[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_val_power[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/ascii_val_maxsmp" type="array">
+      <obj_property name="ElementShortName">ascii_val_maxsmp[39:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_val_maxsmp[39:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/ascii_val_width" type="array">
+      <obj_property name="ElementShortName">ascii_val_width[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_val_width[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/ascii_val_freq" type="array">
+      <obj_property name="ElementShortName">ascii_val_freq[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_val_freq[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/recv_value" type="array">
+      <obj_property name="ElementShortName">recv_value[15:0]</obj_property>
+      <obj_property name="ObjectShortName">recv_value[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/recv_value_ascii" type="array">
+      <obj_property name="ElementShortName">recv_value_ascii[39:0]</obj_property>
+      <obj_property name="ObjectShortName">recv_value_ascii[39:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/max_samples_comp" type="array">
+      <obj_property name="ElementShortName">max_samples_comp[15:0]</obj_property>
+      <obj_property name="ObjectShortName">max_samples_comp[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/width_comp" type="array">
+      <obj_property name="ElementShortName">width_comp[3:0]</obj_property>
+      <obj_property name="ObjectShortName">width_comp[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sim_switch_comp" type="logic">
+      <obj_property name="ElementShortName">sim_switch_comp</obj_property>
+      <obj_property name="ObjectShortName">sim_switch_comp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/force_single_comp" type="logic">
+      <obj_property name="ElementShortName">force_single_comp</obj_property>
+      <obj_property name="ObjectShortName">force_single_comp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/triggered" type="logic">
+      <obj_property name="ElementShortName">triggered</obj_property>
+      <obj_property name="ObjectShortName">triggered</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sample_count" type="array">
+      <obj_property name="ElementShortName">sample_count[17:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_count[17:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/state_sample" type="array">
+      <obj_property name="ElementShortName">state_sample[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state_sample[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/previous_comp" type="logic">
+      <obj_property name="ElementShortName">previous_comp</obj_property>
+      <obj_property name="ObjectShortName">previous_comp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/cycle_counter" type="array">
+      <obj_property name="ElementShortName">cycle_counter[14:0]</obj_property>
+      <obj_property name="ObjectShortName">cycle_counter[14:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/config_w" type="array">
+      <obj_property name="ElementShortName">config_w[20:0]</obj_property>
+      <obj_property name="ObjectShortName">config_w[20:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/config_comp_w" type="array">
+      <obj_property name="ElementShortName">config_comp_w[20:0]</obj_property>
+      <obj_property name="ObjectShortName">config_comp_w[20:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/config_comp_vld" type="logic">
+      <obj_property name="ElementShortName">config_comp_vld</obj_property>
+      <obj_property name="ObjectShortName">config_comp_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/config_rcv" type="logic">
+      <obj_property name="ElementShortName">config_rcv</obj_property>
+      <obj_property name="ObjectShortName">config_rcv</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/config_comp_changed" type="logic">
+      <obj_property name="ElementShortName">config_comp_changed</obj_property>
+      <obj_property name="ObjectShortName">config_comp_changed</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sample_in" type="array">
+      <obj_property name="ElementShortName">sample_in[11:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_in[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sample_in_vld" type="logic">
+      <obj_property name="ElementShortName">sample_in_vld</obj_property>
+      <obj_property name="ObjectShortName">sample_in_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/infifo_data" type="array">
+      <obj_property name="ElementShortName">infifo_data[47:0]</obj_property>
+      <obj_property name="ObjectShortName">infifo_data[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/infifo_vld" type="logic">
+      <obj_property name="ElementShortName">infifo_vld</obj_property>
+      <obj_property name="ObjectShortName">infifo_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/bram_data" type="array">
+      <obj_property name="ElementShortName">bram_data[47:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_data[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/bram_empty" type="logic">
+      <obj_property name="ElementShortName">bram_empty</obj_property>
+      <obj_property name="ObjectShortName">bram_empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/bram_full" type="logic">
+      <obj_property name="ElementShortName">bram_full</obj_property>
+      <obj_property name="ObjectShortName">bram_full</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/bram_vld" type="logic">
+      <obj_property name="ElementShortName">bram_vld</obj_property>
+      <obj_property name="ObjectShortName">bram_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/bram_rdy" type="logic">
+      <obj_property name="ElementShortName">bram_rdy</obj_property>
+      <obj_property name="ObjectShortName">bram_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/bram_rd_rst_busy" type="logic">
+      <obj_property name="ElementShortName">bram_rd_rst_busy</obj_property>
+      <obj_property name="ObjectShortName">bram_rd_rst_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sample_stream" type="array">
+      <obj_property name="ElementShortName">sample_stream[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sample_stream[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/outfifo_empty" type="logic">
+      <obj_property name="ElementShortName">outfifo_empty</obj_property>
+      <obj_property name="ObjectShortName">outfifo_empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/outfifo_full" type="logic">
+      <obj_property name="ElementShortName">outfifo_full</obj_property>
+      <obj_property name="ObjectShortName">outfifo_full</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/outfifo_vld" type="logic">
+      <obj_property name="ElementShortName">outfifo_vld</obj_property>
+      <obj_property name="ObjectShortName">outfifo_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/outfifo_rdy" type="logic">
+      <obj_property name="ElementShortName">outfifo_rdy</obj_property>
+      <obj_property name="ObjectShortName">outfifo_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/send_sample_stream" type="logic">
+      <obj_property name="ElementShortName">send_sample_stream</obj_property>
+      <obj_property name="ObjectShortName">send_sample_stream</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/counter_compare" type="array">
+      <obj_property name="ElementShortName">counter_compare[14:0]</obj_property>
+      <obj_property name="ObjectShortName">counter_compare[14:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/sim_comp_in" type="logic">
+      <obj_property name="ElementShortName">sim_comp_in</obj_property>
+      <obj_property name="ObjectShortName">sim_comp_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/clk_comp" type="logic">
+      <obj_property name="ElementShortName">clk_comp</obj_property>
+      <obj_property name="ObjectShortName">clk_comp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/comp_in_synced" type="logic">
+      <obj_property name="ElementShortName">comp_in_synced</obj_property>
+      <obj_property name="ObjectShortName">comp_in_synced</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/u_top/u_comp_driver/trigger_in_comp" type="logic">
+      <obj_property name="ElementShortName">trigger_in_comp</obj_property>
+      <obj_property name="ObjectShortName">trigger_in_comp</obj_property>
+   </wvobject>
+</wave_config>

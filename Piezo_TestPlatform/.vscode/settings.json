@@ -1,0 +1,10 @@
+{
+    "verilog.icarusTestbenchIncludes": [
+
+        "./Piezo_TestPlatform.srcs/sources_1",
+        "./Piezo_TestPlatform.srcs/sources_1/imports",
+        "./Piezo_TestPlatform.srcs/sim_1"
+    ],
+    "verilog.icarusTestbenchIncludePwd": true,
+    "verilogrunner.Verilog.Custom Flags": "-g2012 -Diverilog -I \"../sources_1\""
+}
