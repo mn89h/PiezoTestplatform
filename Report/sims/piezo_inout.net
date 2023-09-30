@@ -1,0 +1,96 @@
+* C:\Users\malte\Desktop\Piezo_Project\Ausarbeitung\sims\piezo_inout.asc
+XX1 TxRx 0 N002 N003 piezoelement params: L=0.5m S=1e-4
+XX3 N003 N004 substfin params: L=10m S=1e-4 d=1K V=1.5K Nv=1m F=5Meg
+XX4 N004 substinf params: S=1e-4 d=7.9K V=5.17K
+XX2 N002 substinf params: S=1e-4 d=7.9K V=5.17K
+V1 Tx 0 SINE(0 10 4.3Meg) AC 100
+R1 N001 Tx 100
+D1 TxRx N001 D
+D2 N001 TxRx D
+R2 TxRx Rx 100K
+D3 Rx 0 D
+D4 0 Rx D
+XX5 N007 0 N002 N004 piezoelement params: L=0.5m S=1e-4
+R3 N007 0 1Meg
+V2 N013 0 0
+C1 N007 NC_01 1µ V=200 Irms=0 Rser=0 Lser=0
+M1 N012 N013 0 0 IRF2805S
+C2 N007 0 13p
+V3 N005 0 SINE(0 1.5 4.2Meg)
+R4 N006 N005 1
+R5 0 N006 100Meg
+C3 0 N006 10n
+C4 N011 0 5p
+V4 N008 0 SINE(0 5 100k) AC 1
+R6 P001 N008 15
+C5 N009 0 700p
+C6 N010 P002 100n
+R7 P002 N009 10m
+R9 N009 0 1k
+L1 N011 N010 633n Ipk=4 Rser=0.035 Rpar=1012 Cpar=4p mfg="Würth Elektronik" pn="74279252 WE-CBF 1812"
+C7 N009 P001 10n
+
+* block symbol definitions
+.subckt piezoelement E+ E- B F
+E1 N003 0 N002 E- 1
+C0 N001 E- {C0}
+R1 N002 E- 1K
+C1 N002 E- 1
+O1 B i_deform F i_deform Tpzt
+F2 E- N002 V2 {h2}
+V2 E+ N001 0
+V1 i_deform N003 0
+F1 E- N001 V1 {h1}
+.model Tpzt LTRA(len={L} R={Rt} L={Lt} C={Ct})
+.param d=7750; (Kg/m3)
+.param Q=75
+.param V=4350; (m/s)
+.param eS=7.35e-9; (C2/Nm2)
+.param e33=15.8; (C/m2)
+.param C0=eS*S/L; (F)
+.param Lt=d*S; (H)
+.param Ct=1/(V**2*Lt); (F)
+.param f0=V/(2*L); (Hz)
+.param Rt=2*Pi*f0*Lt/Q; (Ohm)
+.param h1=e33/eS
+.param h2=h1*C0
+.params L=435u S=1.267e-4
+.ends piezoelement
+
+.subckt substfin b f
+O§Load B 0 F 0 Tload
+.model Tload LTRA(len={L} R={Rt} L={Lt} C={Ct})
+.param d=1000; (Kg/m3)
+.param V=1500; (m/s)
+.param Nv=1e-3; Viscosity(Pas)
+.param Lt=d*S; (H)
+.param Ct=1/(V**2*Lt); (F)
+.param Af2=8*Pi**2*Nv/(3*d*V**3); (Neper/m/Hz2)
+.param At=Af2*F**2; (Neper/m)
+.param Rt=2*V*d*S*At; (Ohm)
+.params L=10m S=1e-4
+.param F=1Meg
+.ends substfin
+
+.subckt substinf b
+R1 B 0 {Z}
+.param d=1000; (Kg/m3)
+.param V=1500; (m/s)
+.param Z=V*d*S; (Ohm)
+.param S=1e-4; (m2)
+.ends substinf
+
+.model D D
+.lib C:\Users\malte\Documents\LTspiceXVII\lib\cmp\standard.dio
+.model NMOS NMOS
+.model PMOS PMOS
+.lib C:\Users\malte\Documents\LTspiceXVII\lib\cmp\standard.mos
+* Iron
+* Water
+;tran 50u
+* PZT-5
+* Iron
+;tran 1u
+.ac dec 100 100 100Meg
+.backanno
+.end
